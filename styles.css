@@ -1,0 +1,88 @@
+/* Additional styles for the Live Objection Handler */
+
+/* Variables for consistent theming */
+:root {
+  --primary-color: #4a6fa5;
+  --primary-hover: #3a5a8f;
+  --secondary-color: #f8f9fa;
+  --text-color: #333;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 20px auto;
+  line-height: 1.5;
+  color: var(--text-color);
+  padding: 0 15px;
+}
+
+h2 {
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 10px 16px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+button.active {
+  background-color: var(--danger-color);
+}
+
+pre {
+  background: var(--secondary-color);
+  padding: 15px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  margin-top: 15px;
+  border: 1px solid #ddd;
+}
+
+#lastObjection {
+  border-left: 4px solid var(--warning-color);
+}
+
+#reply {
+  border-left: 4px solid var(--success-color);
+  font-weight: bold;
+}
+
+/* Simple animation for the reply */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#reply:not(:empty) {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  h2 {
+    font-size: 1.4rem;
+  }
+  
+  button {
+    width: 100%;
+  }
+}
