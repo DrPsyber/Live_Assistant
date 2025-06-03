@@ -11,11 +11,8 @@
 <link rel="stylesheet" href="assets/css/dialogs.css">
 <link rel="stylesheet" href="assets/css/animations.css">
 
-<div class="logo-container">
-  <img src="Logo black.png" alt="AI Advantage Logo" class="logo">
-</div>
 <div class="header-controls">
-  <h2>Transcribe n Vibe</h2>
+  <h2>Live Assistant</h2>
   <div class="controls">
     <button id="theme-toggle" title="Toggle dark mode">🌓</button>
     <button id="settings-btn" title="Settings">⚙️</button>
@@ -45,6 +42,7 @@
     <div class="model-selector">
       <label for="model-select">Model:</label>
       <select id="model-select">
+        <option value="gpt-4.1">GPT-4.1</option>
         <option value="gpt-4o">GPT-4o</option>
         <option value="gpt-4o-mini">GPT-4o Mini</option>
         <option value="o1-preview">O1 Preview</option>
@@ -103,6 +101,11 @@
       <label for="github-token-input">GitHub Token:</label>
       <input type="password" id="github-token-input" placeholder="ghp_..." />
     </div>
+    <div class="dialog-buttons">
+      <p id="api-key-status"></p>
+      <button id="api-key-save">Apply</button>
+      <button id="api-key-cancel">Cancel</button>
+    </div>
     
     <!-- System Prompt Section -->
     <div class="api-key-section">
@@ -119,11 +122,17 @@
       <textarea id="system-prompt-dialog" rows="4" placeholder="Enter your system prompt here...">You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.</textarea>
     </div>
     
-    <div class="dialog-buttons">
-      <button id="api-key-save">Save Settings</button>
-      <button id="api-key-cancel">Cancel</button>
+    <!-- Upload File(s) Section -->
+    <div class="api-key-section">
+      <label for="file-upload-input">Upload File(s):</label>
+      <div class="file-upload-container">
+        <input type="file" id="file-upload-input" multiple accept=".txt,.md,.json,.csv,.log,.js,.ts,.html,.css,.py,.java,.cpp,.c,.h" />
+        <button id="clear-files-btn" title="Clear all uploaded files">Clear All</button>
+      </div>
+      <div id="uploaded-files-list" class="uploaded-files-list"></div>
+      <p class="info-text">Files will be used as context for your prompts. Supported formats: text, markdown, code files, etc.</p>
     </div>
-    <p id="api-key-status"></p>
+    
   </div>
 </div>
 
@@ -141,6 +150,7 @@ const appState = {
   responseHistory: [],
   systemPrompt: 'You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.',
   selectedModel: 'gpt-4o',
+  uploadedFiles: [],
   presets: {
     'executive-reframer': {
       name: 'Executive Reframer',
@@ -294,6 +304,17 @@ document.addEventListener('DOMContentLoaded', () => {
       managePresetsDialog.addEventListener('click', showPresetManagerDialog);
     }
     
+    // File upload listeners
+    const fileUploadInput = document.getElementById('file-upload-input');
+    if (fileUploadInput) {
+      fileUploadInput.addEventListener('change', handleFileUpload);
+    }
+    
+    const clearFilesBtn = document.getElementById('clear-files-btn');
+    if (clearFilesBtn) {
+      clearFilesBtn.addEventListener('click', clearAllFiles);
+    }
+    
     // History management
     const clearHistory = document.getElementById('clear-history');
     if (clearHistory) {
@@ -360,6 +381,17 @@ function loadSavedState() {
     } catch (e) {
       console.error('Error parsing saved history:', e);
       appState.responseHistory = [];
+    }
+  }
+  
+  // Load uploaded files
+  const savedFiles = localStorage.getItem('uploaded_files');
+  if (savedFiles) {
+    try {
+      appState.uploadedFiles = JSON.parse(savedFiles);
+    } catch (e) {
+      console.error('Error parsing saved files:', e);
+      appState.uploadedFiles = [];
     }
   }
   
@@ -669,6 +701,10 @@ function showApiKeyDialog() {
 
   // Update preset dropdown
   updatePresetOptionsDialog();
+  
+  // Initialize file upload interface
+  renderUploadedFiles();
+  updateClearButtonState();
 
   // Clear any previous status messages
   if (status) {
@@ -736,6 +772,162 @@ function saveApiKey() {
     status.style.color = '#28a745';
     setTimeout(hideApiKeyDialog, 1000);
   }
+}
+
+// File Upload Functions
+function handleFileUpload(event) {
+  const files = Array.from(event.target.files);
+  const status = document.getElementById('api-key-status');
+  
+  if (files.length === 0) return;
+  
+  files.forEach(file => {
+    // Check file size (limit to 1MB per file)
+    if (file.size > 1024 * 1024) {
+      if (status) {
+        status.textContent = `File "${file.name}" is too large. Maximum size is 1MB.`;
+        status.style.color = '#dc3545';
+      }
+      return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const fileData = {
+        id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        content: e.target.result,
+        uploadDate: new Date().toISOString()
+      };
+      
+      // Add to app state
+      appState.uploadedFiles.push(fileData);
+      
+      // Save to localStorage
+      localStorage.setItem('uploaded_files', JSON.stringify(appState.uploadedFiles));
+      
+      // Update UI
+      renderUploadedFiles();
+      updateClearButtonState();
+      
+      if (status) {
+        status.textContent = `File "${file.name}" uploaded successfully!`;
+        status.style.color = '#28a745';
+        setTimeout(() => {
+          status.textContent = '';
+        }, 3000);
+      }
+    };
+    
+    reader.onerror = function() {
+      if (status) {
+        status.textContent = `Error reading file "${file.name}"`;
+        status.style.color = '#dc3545';
+      }
+    };
+    
+    reader.readAsText(file);
+  });
+  
+  // Clear the input so the same file can be uploaded again if needed
+  event.target.value = '';
+}
+
+function renderUploadedFiles() {
+  const container = document.getElementById('uploaded-files-list');
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (appState.uploadedFiles.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+  
+  container.style.display = 'block';
+  
+  appState.uploadedFiles.forEach(file => {
+    const fileItem = document.createElement('div');
+    fileItem.className = 'uploaded-file-item';
+    
+    fileItem.innerHTML = `
+      <div class="uploaded-file-info">
+        <div class="uploaded-file-name">${file.name}</div>
+        <div class="uploaded-file-size">${formatFileSize(file.size)} • ${new Date(file.uploadDate).toLocaleString()}</div>
+      </div>
+      <button class="remove-file-btn" onclick="removeFile('${file.id}')" title="Remove file">×</button>
+    `;
+    
+    container.appendChild(fileItem);
+  });
+}
+
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+function removeFile(fileId) {
+  appState.uploadedFiles = appState.uploadedFiles.filter(file => file.id !== fileId);
+  localStorage.setItem('uploaded_files', JSON.stringify(appState.uploadedFiles));
+  renderUploadedFiles();
+  updateClearButtonState();
+  
+  const status = document.getElementById('api-key-status');
+  if (status) {
+    status.textContent = 'File removed successfully';
+    status.style.color = '#28a745';
+    setTimeout(() => {
+      status.textContent = '';
+    }, 2000);
+  }
+}
+
+function clearAllFiles() {
+  if (appState.uploadedFiles.length === 0) return;
+  
+  if (confirm('Are you sure you want to remove all uploaded files?')) {
+    appState.uploadedFiles = [];
+    localStorage.removeItem('uploaded_files');
+    renderUploadedFiles();
+    updateClearButtonState();
+    
+    const status = document.getElementById('api-key-status');
+    if (status) {
+      status.textContent = 'All files cleared successfully';
+      status.style.color = '#28a745';
+      setTimeout(() => {
+        status.textContent = '';
+      }, 2000);
+    }
+  }
+}
+
+function updateClearButtonState() {
+  const clearBtn = document.getElementById('clear-files-btn');
+  if (clearBtn) {
+    clearBtn.disabled = appState.uploadedFiles.length === 0;
+  }
+}
+
+function getUploadedFilesContext() {
+  if (appState.uploadedFiles.length === 0) {
+    return '';
+  }
+  
+  let context = '\n\n--- UPLOADED FILES CONTEXT ---\n';
+  appState.uploadedFiles.forEach(file => {
+    context += `\nFile: ${file.name}\n`;
+    context += `Content:\n${file.content}\n`;
+    context += '---\n';
+  });
+  
+  return context;
 }
 
 // Toggle recording function
@@ -1019,6 +1211,10 @@ async function generateGitHubResponse(text, model, systemPrompt, replyElement) {
     // GitHub Models API endpoint 
     const endpoint = 'https://models.inference.ai.azure.com/chat/completions';
     
+    // Get uploaded files context
+    const filesContext = getUploadedFilesContext();
+    const enhancedSystemPrompt = systemPrompt + filesContext;
+    
     // Make API request
     const response = await fetch(endpoint, {
       method: 'POST',
@@ -1031,7 +1227,7 @@ async function generateGitHubResponse(text, model, systemPrompt, replyElement) {
         messages: [
           {
             role: 'system',
-            content: systemPrompt
+            content: enhancedSystemPrompt
           },
           {
             role: 'user',

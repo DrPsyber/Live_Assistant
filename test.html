@@ -1,90 +1,121 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>System Prompt Consolidation Test</title>
+    <title>File Upload Feature Test</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; }
-        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
         .pass { color: green; }
         .fail { color: red; }
-        button { margin: 5px; padding: 5px 10px; }
+        .info { color: blue; }
+        button { margin: 5px; padding: 8px 12px; }
+        .feature-list { list-style-type: none; padding-left: 0; }
+        .feature-list li { margin: 8px 0; padding: 8px; background: #f5f5f5; border-radius: 4px; }
+        .feature-list li:before { content: "✓ "; color: green; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>System Prompt Consolidation Test</h1>
+    <h1>File Upload Feature Test</h1>
     
     <div class="test-section">
-        <h2>Test Results</h2>
-        <div id="test-results"></div>
+        <h2>🎯 Feature Overview</h2>
+        <p>Added file upload functionality to the Settings dialog that allows users to upload files for use as context in AI prompts.</p>
+        
+        <h3>New Features Implemented:</h3>
+        <ul class="feature-list">
+            <li>File upload input with multiple file support</li>
+            <li>File size validation (1MB max per file)</li>
+            <li>Supported file types: .txt, .md, .json, .csv, .log, .js, .ts, .html, .css, .py, .java, .cpp, .c, .h</li>
+            <li>Visual file list with file name, size, and upload date</li>
+            <li>Individual file removal buttons</li>
+            <li>Clear all files functionality</li>
+            <li>Persistent storage in localStorage</li>
+            <li>File content integration with AI prompts</li>
+        </ul>
     </div>
     
     <div class="test-section">
-        <h2>Manual Tests</h2>
-        <p>Open the main application and test:</p>
+        <h2>🧪 Manual Testing Steps</h2>
         <ol>
-            <li>Click the Settings button (⚙️)</li>
-            <li>Verify the System Prompt section is visible in the Settings dialog</li>
-            <li>Verify the preset controls work (dropdown, Save As+, ⋮)</li>
-            <li>Try changing the system prompt and saving</li>
-            <li>Verify the prompt persists after reopening the dialog</li>
+            <li><strong>Open Settings Dialog:</strong>
+                <ul>
+                    <li>Click the Settings button (⚙️) in the main application</li>
+                    <li>Verify "Upload File(s)" section is visible</li>
+                </ul>
+            </li>
+            
+            <li><strong>Upload Files:</strong>
+                <ul>
+                    <li>Click "Choose Files" and select the sample-context.txt file</li>
+                    <li>Verify file appears in the uploaded files list</li>
+                    <li>Check that file shows name, size, and date</li>
+                </ul>
+            </li>
+            
+            <li><strong>Test File Management:</strong>
+                <ul>
+                    <li>Try uploading multiple files</li>
+                    <li>Test removing individual files with × button</li>
+                    <li>Test "Clear All" button</li>
+                    <li>Verify confirmation dialog for clear all</li>
+                </ul>
+            </li>
+            
+            <li><strong>Test Persistence:</strong>
+                <ul>
+                    <li>Upload a file and close the dialog</li>
+                    <li>Reopen the dialog - file should still be there</li>
+                    <li>Refresh the page - file should persist</li>
+                </ul>
+            </li>
+            
+            <li><strong>Test File Size Limits:</strong>
+                <ul>
+                    <li>Try to upload a file larger than 1MB</li>
+                    <li>Verify error message appears</li>
+                </ul>
+            </li>
+            
+            <li><strong>Test Context Integration:</strong>
+                <ul>
+                    <li>Upload a context file with relevant information</li>
+                    <li>Make a speech recording</li>
+                    <li>Verify the AI response uses context from uploaded files</li>
+                </ul>
+            </li>
         </ol>
-        <a href="index.html" target="_blank">Open Main Application</a>
     </div>
-
-    <script>
-        function runTests() {
-            const results = [];
-            
-            // Test 1: Check if system-prompt-dialog element exists
-            const dialogPrompt = document.getElementById('system-prompt-dialog');
-            results.push({
-                name: "System Prompt Dialog Element Exists",
-                pass: false,
-                note: "This element exists in the main application, not this test page"
-            });
-            
-            // Test 2: Check if preset controls exist
-            results.push({
-                name: "Preset Controls Exist in Dialog",
-                pass: false,
-                note: "These elements exist in the main application, not this test page"
-            });
-            
-            // Test 3: Check if functions are properly defined
-            results.push({
-                name: "Functions Properly Updated",
-                pass: true,
-                note: "Updated loadSavedState, loadPreset, saveNewPreset, saveSystemPrompt, and saveApiKey functions"
-            });
-            
-            // Test 4: Check if event listeners are added
-            results.push({
-                name: "Dialog Event Listeners Added",
-                pass: true,
-                note: "Added listeners for preset-select-dialog, save-as-preset-dialog, and manage-presets-dialog"
-            });
-            
-            displayResults(results);
-        }
-        
-        function displayResults(results) {
-            const container = document.getElementById('test-results');
-            container.innerHTML = '';
-            
-            results.forEach(result => {
-                const div = document.createElement('div');
-                div.className = result.pass ? 'pass' : 'fail';
-                div.innerHTML = `
-                    <strong>${result.name}:</strong> 
-                    ${result.pass ? 'PASS' : 'REQUIRES MANUAL VERIFICATION'} 
-                    <em>(${result.note})</em>
-                `;
-                container.appendChild(div);
-            });
-        }
-        
-        // Run tests when page loads
-        runTests();
-    </script>
+    
+    <div class="test-section">
+        <h2>📁 Sample Files for Testing</h2>
+        <p>A sample context file has been created: <code>sample-context.txt</code></p>
+        <p>This file contains sample business context that can be used to test the feature.</p>
+        <a href="sample-context.txt" download>Download sample-context.txt</a>
+    </div>
+    
+    <div class="test-section">
+        <h2>🔧 Technical Implementation</h2>
+        <ul>
+            <li><strong>HTML:</strong> Added file upload section to Settings dialog</li>
+            <li><strong>CSS:</strong> Styled file upload components in dialogs.css</li>
+            <li><strong>JavaScript:</strong> Added file handling functions:
+                <ul>
+                    <li><code>handleFileUpload()</code> - Process file uploads</li>
+                    <li><code>renderUploadedFiles()</code> - Display file list</li>
+                    <li><code>removeFile()</code> - Remove individual files</li>
+                    <li><code>clearAllFiles()</code> - Remove all files</li>
+                    <li><code>getUploadedFilesContext()</code> - Format files for AI context</li>
+                </ul>
+            </li>
+            <li><strong>Storage:</strong> Files stored in localStorage as 'uploaded_files'</li>
+            <li><strong>Integration:</strong> File content automatically included in AI prompts</li>
+        </ul>
+    </div>
+    
+    <div class="test-section">
+        <h2>🚀 Ready to Test</h2>
+        <p><strong>Click below to open the main application and test the file upload feature:</strong></p>
+        <a href="index.html" target="_blank" style="display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">Open Main Application</a>
+    </div>
 </body>
 </html>

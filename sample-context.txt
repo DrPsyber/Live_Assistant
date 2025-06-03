@@ -1,0 +1,21 @@
+# Sample Context File
+
+This is a sample text file that can be uploaded to provide context for the AI responses.
+
+## Key Information:
+- Company: Tech Solutions Inc.
+- Product: Advanced Analytics Platform
+- Current Challenge: Client objections about pricing
+- Target Audience: Enterprise clients
+
+## Common Objections:
+1. "Your solution is too expensive"
+2. "We already have analytics tools"
+3. "Implementation will take too long"
+4. "We're not sure about ROI"
+
+## Key Value Points:
+- 40% faster insights than competitors
+- Integration with existing systems
+- 24/7 support included
+- Proven ROI within 6 months

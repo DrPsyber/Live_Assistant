@@ -9,6 +9,8 @@ body {
   transition: all 0.3s ease;
   padding: 0 20px;
   font-size: 15px;
+  scrollbar-color: var(--scrollbar-thumb) var(--secondary-bg);
+  scrollbar-width: thin;
 }
 
 h2, h3 {

@@ -1,6 +1,5 @@
 /* Button and Form Components */
-button { 
-  padding: 10px 16px; 
+button {  
   background: var(--primary-color); 
   color: white; 
   border: none; 
@@ -42,6 +41,7 @@ button.active {
 .record-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   font-weight: 600;
   padding: 12px 18px;
