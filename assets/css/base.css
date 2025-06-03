@@ -1,0 +1,58 @@
+/* Base Typography and Element Styles */
+body { 
+  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif; 
+  max-width: 650px; 
+  margin: 20px auto; 
+  line-height: 1.6; 
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+  padding: 0 20px;
+  font-size: 15px;
+}
+
+h2, h3 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+pre { 
+  background: var(--secondary-bg); 
+  padding: 15px; 
+  border-radius: var(--inner-radius); 
+  white-space: pre-wrap; 
+  margin-top: 15px;
+  border: 1px solid var(--border-color);
+  transition: background-color 0.3s;
+  font-size: 14px;
+  line-height: 1.6;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Utility Classes */
+.hidden {
+  display: none;
+}
+
+.info-text {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Status Dot Utility */
+#status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  background: white; /* default - white for contrast inside button */
+  margin-right: 8px;
+  position: relative;
+  top: -1px;
+  transition: background-color 0.3s ease;
+}
+
+#status-dot.listening  { background: var(--action-yellow); }
+#status-dot.processing { background: var(--primary-color); }
+#status-dot.error      { background: var(--rebel-orange); }
