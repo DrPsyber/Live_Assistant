@@ -39,23 +39,6 @@
   <pre id="lastObjection">Your speech will appear here...</pre>
 </div>
 
-<div class="system-prompt-container">
-  <div class="prompt-header">
-    <label for="system-prompt">Prompt:</label>
-    <div class="preset-controls">
-      <select id="preset-select">
-        <option value="">-- Choose Preset --</option>
-        <option value="executive-reframer">Executive Reframer</option>
-        <option value="negotiation">Negotiation Expert</option>
-      </select>
-      <button id="save-as-preset" title="Save as new preset">Save As+</button>
-      <button id="manage-presets" title="Manage presets">⋮</button>
-    </div>
-  </div>
-  <textarea id="system-prompt" rows="3">You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.</textarea>
-  <button id="save-prompt">Save Prompt</button>
-</div>
-
 <div class="response-container">
   <div class="response-header">
     <p class="box-label">💡 AI Response:</p>
@@ -109,19 +92,35 @@
   <div id="history-list" class="history-list"></div>
 </div>
 
-<!-- API Key Dialog -->
+<!-- Settings Dialog -->
 <div id="api-key-dialog" class="dialog hidden">
   <div class="dialog-content">
-    <h3>GitHub Token</h3>
-    <p class="info-text">Your GitHub token is stored locally in your browser.</p>
+    <h3>Settings</h3>
+    <p class="info-text">Your settings are stored locally in your browser.</p>
     
+    <!-- GitHub Token Section -->
     <div class="api-key-section">
       <label for="github-token-input">GitHub Token:</label>
       <input type="password" id="github-token-input" placeholder="ghp_..." />
     </div>
     
+    <!-- System Prompt Section -->
+    <div class="api-key-section">
+      <label for="system-prompt-dialog">System Prompt:</label>
+      <div class="preset-controls">
+        <select id="preset-select-dialog">
+          <option value="">-- Choose Preset --</option>
+          <option value="executive-reframer">Executive Reframer</option>
+          <option value="negotiation">Negotiation Expert</option>
+        </select>
+        <button id="save-as-preset-dialog" title="Save as new preset">Save As+</button>
+        <button id="manage-presets-dialog" title="Manage presets">⋮</button>
+      </div>
+      <textarea id="system-prompt-dialog" rows="4" placeholder="Enter your system prompt here...">You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.</textarea>
+    </div>
+    
     <div class="dialog-buttons">
-      <button id="api-key-save">Save</button>
+      <button id="api-key-save">Save Settings</button>
       <button id="api-key-cancel">Cancel</button>
     </div>
     <p id="api-key-status"></p>
@@ -279,6 +278,22 @@ document.addEventListener('DOMContentLoaded', () => {
       newPresetSave.addEventListener('click', saveNewPreset);
     }
     
+    // Dialog preset management listeners
+    const presetSelectDialog = document.getElementById('preset-select-dialog');
+    if (presetSelectDialog) {
+      presetSelectDialog.addEventListener('change', loadSelectedPreset);
+    }
+    
+    const saveAsPresetDialog = document.getElementById('save-as-preset-dialog');
+    if (saveAsPresetDialog) {
+      saveAsPresetDialog.addEventListener('click', showNewPresetDialog);
+    }
+    
+    const managePresetsDialog = document.getElementById('manage-presets-dialog');
+    if (managePresetsDialog) {
+      managePresetsDialog.addEventListener('click', showPresetManagerDialog);
+    }
+    
     // History management
     const clearHistory = document.getElementById('clear-history');
     if (clearHistory) {
@@ -320,7 +335,11 @@ function loadSavedState() {
   const savedPrompt = localStorage.getItem('system_prompt');
   if (savedPrompt) {
     appState.systemPrompt = savedPrompt;
-    document.getElementById('system-prompt').value = savedPrompt;
+    // Update dialog version if it exists
+    const dialogPrompt = document.getElementById('system-prompt-dialog');
+    if (dialogPrompt) {
+      dialogPrompt.value = savedPrompt;
+    }
   }
   
   // Load selected model
@@ -352,13 +371,19 @@ function loadSavedState() {
       // Merge custom presets with default presets
       appState.presets = { ...appState.presets, ...customPresets };
       // Update the preset dropdown options
-      setTimeout(updatePresetOptions, 0);
+      setTimeout(() => {
+        updatePresetOptions();
+        updatePresetOptionsDialog();
+      }, 0);
     } catch (e) {
       console.error('Error parsing saved presets:', e);
     }
   } else {
     // Make sure we have all default presets in the dropdown
-    setTimeout(updatePresetOptions, 0);
+    setTimeout(() => {
+      updatePresetOptions();
+      updatePresetOptionsDialog();
+    }, 0);
   }
 }
 
@@ -411,12 +436,24 @@ function renderPresetList() {
 function loadPreset(presetId) {
   const preset = appState.presets[presetId];
   if (preset) {
-    document.getElementById('system-prompt').value = preset.prompt;
+    // Update dialog version if it exists
+    const dialogPrompt = document.getElementById('system-prompt-dialog');
+    if (dialogPrompt) {
+      dialogPrompt.value = preset.prompt;
+    }
+    
     appState.systemPrompt = preset.prompt;
     localStorage.setItem('system_prompt', preset.prompt);
     
-    // Update the dropdown selection
-    document.getElementById('preset-select').value = presetId;
+    // Update the dropdown selections
+    const mainSelect = document.getElementById('preset-select');
+    if (mainSelect) {
+      mainSelect.value = presetId;
+    }
+    const dialogSelect = document.getElementById('preset-select-dialog');
+    if (dialogSelect) {
+      dialogSelect.value = presetId;
+    }
   }
 }
 
@@ -447,6 +484,8 @@ function deletePreset(presetId) {
     
     // Update UI
     renderPresetList();
+    updatePresetOptions();
+    updatePresetOptionsDialog();
   }
 }
 
@@ -498,7 +537,7 @@ function saveNewPreset() {
   // Create the new preset
   const newPreset = {
     name: name,
-    prompt: document.getElementById('system-prompt').value
+    prompt: document.getElementById('system-prompt-dialog')?.value || appState.systemPrompt
   };
   
   // Add to state
@@ -517,6 +556,7 @@ function saveNewPreset() {
   
   // Update the preset dropdown options
   updatePresetOptions();
+  updatePresetOptionsDialog();
   
   // Show success message
   statusElement.textContent = 'Preset saved successfully';
@@ -530,37 +570,63 @@ function saveNewPreset() {
 function updatePresetOptions() {
   const select = document.getElementById('preset-select');
   
-  // Clear existing options except the default one
-  while (select.options.length > 1) {
-    select.remove(1);
+  if (select) {
+    // Clear existing options except the default one
+    while (select.options.length > 1) {
+      select.remove(1);
+    }
+    
+    // Add all presets as options
+    Object.entries(appState.presets).forEach(([id, preset]) => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = preset.name;
+      select.appendChild(option);
+    });
   }
+}
+
+// Update preset dropdown options for dialog
+function updatePresetOptionsDialog() {
+  const select = document.getElementById('preset-select-dialog');
   
-  // Add all presets as options
-  Object.entries(appState.presets).forEach(([id, preset]) => {
-    const option = document.createElement('option');
-    option.value = id;
-    option.textContent = preset.name;
-    select.appendChild(option);
-  });
+  if (select) {
+    // Clear existing options except the default one
+    while (select.options.length > 1) {
+      select.remove(1);
+    }
+    
+    // Add all presets as options
+    Object.entries(appState.presets).forEach(([id, preset]) => {
+      const option = document.createElement('option');
+      option.value = id;
+      option.textContent = preset.name;
+      select.appendChild(option);
+    });
+  }
 }
 
 // Save system prompt
 function saveSystemPrompt() {
-  const promptText = document.getElementById('system-prompt').value.trim();
+  const dialogPrompt = document.getElementById('system-prompt-dialog');
+  const promptText = dialogPrompt?.value.trim() || appState.systemPrompt;
+  
   if (promptText) {
     appState.systemPrompt = promptText;
     localStorage.setItem('system_prompt', promptText);
     
     // Show a flash message
     const saveBtn = document.getElementById('save-prompt');
-    const originalText = saveBtn.textContent;
-    saveBtn.textContent = 'Saved!';
-    saveBtn.style.backgroundColor = '#28a745';
-    
-    setTimeout(() => {
-      saveBtn.textContent = originalText;
-      saveBtn.style.backgroundColor = '';
-    }, 1500);
+    if (saveBtn) {
+      const originalText = saveBtn.textContent;
+      saveBtn.textContent = 'Saved!';
+      saveBtn.style.backgroundColor = '#28a745';
+      
+      setTimeout(() => {
+        saveBtn.textContent = originalText;
+        saveBtn.style.backgroundColor = '';
+      }, 1500);
+    }
   }
 }
 
@@ -590,21 +656,29 @@ function toggleTheme() {
 function showApiKeyDialog() {
   const dialog = document.getElementById('api-key-dialog');
   const githubInput = document.getElementById('github-token-input');
+  const systemPromptInput = document.getElementById('system-prompt-dialog');
+  const presetSelect = document.getElementById('preset-select-dialog');
   const status = document.getElementById('api-key-status');
-  
+
+  // Pre-populate with saved values
   const githubToken = localStorage.getItem('github_token') || '';
-  
+  const savedPrompt = localStorage.getItem('system_prompt') || appState.systemPrompt;
+
   githubInput.value = githubToken;
-  
+  systemPromptInput.value = savedPrompt;
+
+  // Update preset dropdown
+  updatePresetOptionsDialog();
+
   // Clear any previous status messages
   if (status) {
     status.textContent = '';
     status.style.color = '';
   }
-  
+
   dialog.classList.remove('hidden');
   setTimeout(() => githubInput.focus(), 100);
-  
+
   // Handle Enter key in input field
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -612,7 +686,7 @@ function showApiKeyDialog() {
       saveApiKey();
     }
   };
-  
+
   // Remove any existing listener and add new one
   githubInput.removeEventListener('keydown', handleKeyDown);
   githubInput.addEventListener('keydown', handleKeyDown);
@@ -627,6 +701,7 @@ function hideApiKeyDialog() {
 
 function saveApiKey() {
   const githubInput = document.getElementById('github-token-input');
+  const systemPromptInput = document.getElementById('system-prompt-dialog');
   const status = document.getElementById('api-key-status');
   
   if (!githubInput || !status) {
@@ -635,6 +710,7 @@ function saveApiKey() {
   }
   
   const githubToken = githubInput.value.trim();
+  const systemPromptText = systemPromptInput?.value.trim();
   let isValid = true;
   
   // Validate GitHub token if provided
@@ -645,11 +721,18 @@ function saveApiKey() {
   }
   
   if (isValid) {
+    // Save GitHub token if provided
     if (githubToken) {
       localStorage.setItem('github_token', githubToken);
     }
     
-    status.textContent = 'GitHub token saved successfully!';
+    // Save system prompt if provided
+    if (systemPromptText) {
+      appState.systemPrompt = systemPromptText;
+      localStorage.setItem('system_prompt', systemPromptText);
+    }
+    
+    status.textContent = 'Settings saved successfully!';
     status.style.color = '#28a745';
     setTimeout(hideApiKeyDialog, 1000);
   }

@@ -22,7 +22,9 @@
   padding: 20px;
   border-radius: 5px;
   width: 80%;
-  max-width: 400px;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
   box-shadow: 0 2px 10px var(--shadow-color);
 }
 
@@ -42,6 +44,60 @@
   outline: none;
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(14, 162, 127, 0.2);
+}
+
+.dialog textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin: 8px 0 16px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--inner-radius);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Prompt', sans-serif;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s;
+}
+
+.dialog textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(14, 162, 127, 0.2);
+}
+
+.dialog .preset-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.dialog .preset-controls select {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--inner-radius);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Prompt', sans-serif;
+  font-size: 14px;
+}
+
+.dialog .preset-controls button {
+  padding: 6px 10px;
+  font-size: 0.9rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--inner-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dialog .preset-controls button:hover {
+  background: var(--primary-hover);
 }
 
 .dialog-buttons {
