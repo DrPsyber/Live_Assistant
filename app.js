@@ -3,27 +3,25 @@
  * This script adds additional features to the core speech recognition and AI response system.
  */
 
-// Initialize OpenAI client
-let openaiClient = null;
+// Initialize GitHub client
+let githubClient = null;
 
-function initializeOpenAIClient() {
-  const apiKey = localStorage.getItem('openai_api_key') || '';
-  if (apiKey) {
-    openaiClient = new OpenAI({
-      apiKey: apiKey,
-      dangerouslyAllowBrowser: true // Required for client-side usage
-    });
+function initializeGitHubClient() {
+  const token = localStorage.getItem('github_token') || '';
+  if (token) {
+    // Store token for use in fetch calls
+    githubClient = { token };
     return true;
   }
   return false;
 }
 
 // Make the client available globally
-window.getOpenAIClient = function() {
-  if (!openaiClient && localStorage.getItem('openai_api_key')) {
-    initializeOpenAIClient();
+window.getGitHubClient = function() {
+  if (!githubClient && localStorage.getItem('github_token')) {
+    initializeGitHubClient();
   }
-  return openaiClient;
+  return githubClient;
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -44,19 +42,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const maxHistoryItems = 5;
   let objectionHistory = [];
   
-  // Initialize API Key from local storage and create OpenAI client
-  let apiKey = localStorage.getItem('openai_api_key') || '';
-  if (apiKey) {
-    initializeOpenAIClient();
+  // Initialize GitHub token from local storage
+  let token = localStorage.getItem('github_token') || '';
+  if (token) {
+    initializeGitHubClient();
   }
   
-  // Check for API key on startup
-  if (!apiKey) {
-    promptForApiKey();
+  // Check for GitHub token on startup
+  if (!token) {
+    promptForToken();
   }
   
-  // Add API key functionality with improved handling
-  function promptForApiKey() {
+  // Add GitHub token functionality with improved handling
+  function promptForToken() {
     // Create modal for better UX than simple prompt
     const modal = document.createElement('div');
     modal.style.position = 'fixed';
@@ -78,30 +76,30 @@ document.addEventListener('DOMContentLoaded', () => {
     modalContent.style.maxWidth = '500px';
     
     const heading = document.createElement('h3');
-    heading.textContent = 'Enter your OpenAI API Key';
+    heading.textContent = 'Enter your GitHub Token';
     heading.style.marginBottom = '15px';
     
     const info = document.createElement('p');
-    info.innerHTML = 'Your API key is stored locally in your browser and never sent to any server except OpenAI.';
+    info.innerHTML = 'Your GitHub token is stored locally in your browser and never sent to any server except GitHub.';
     info.style.fontSize = '14px';
     info.style.marginBottom = '15px';
     
     const input = document.createElement('input');
     input.type = 'password';
-    input.placeholder = 'sk-...';
+    input.placeholder = 'ghp_...';
     input.style.width = '100%';
     input.style.padding = '8px';
     input.style.marginBottom = '15px';
     input.style.borderRadius = '4px';
     input.style.border = '1px solid #ccc';
-    input.value = apiKey; // Pre-fill if exists
+    input.value = token; // Pre-fill if exists
     
     const buttonContainer = document.createElement('div');
     buttonContainer.style.display = 'flex';
     buttonContainer.style.justifyContent = 'space-between';
     
     const saveButton = document.createElement('button');
-    saveButton.textContent = 'Save API Key';
+    saveButton.textContent = 'Save Token';
     saveButton.style.padding = '8px 16px';
     saveButton.style.backgroundColor = '#4a6fa5';
     saveButton.style.color = 'white';
@@ -126,14 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add event listeners
     saveButton.addEventListener('click', () => {
       const key = input.value.trim();
-      if (key && key.startsWith('sk-')) {
-        apiKey = key;
-        localStorage.setItem('openai_api_key', key);
-        initializeOpenAIClient(); // Initialize client after saving key
+      if (key && key.startsWith('ghp_')) {
+        token = key;
+        localStorage.setItem('github_token', key);
+        initializeGitHubClient(); // Initialize client after saving key
         document.body.removeChild(modal);
         return true;
       } else {
-        statusMsg.textContent = 'Invalid API key format. It should start with "sk-"';
+        statusMsg.textContent = 'Invalid GitHub token format. It should start with "ghp_"';
         statusMsg.style.color = 'red';
       }
     });
@@ -165,8 +163,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Focus the input
     setTimeout(() => input.focus(), 0);
     
-    // Return true if key already exists, otherwise we don't know yet
-    return !!apiKey;
+    // Return true if token already exists, otherwise we don't know yet
+    return !!token;
   }
   
   // Enhance the onresult function to save history
@@ -228,20 +226,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(historyContainer);
   }
   
-  // Modify the fetch call to use the stored API key
+  // Modify the fetch call to use the stored GitHub token
   const originalFetch = window.fetch;
   window.fetch = function(url, options) {
-    if (url === 'https://api.openai.com/v1/chat/completions') {
-      // If no API key is stored or in options, prompt for one
-      if (!apiKey && (!options.headers || !options.headers.Authorization)) {
-        if (!promptForApiKey()) {
-          return Promise.reject(new Error('API key required'));
+    if (url === 'https://models.inference.ai.azure.com/chat/completions') {
+      // If no token is stored or in options, prompt for one
+      if (!token && (!options.headers || !options.headers.Authorization)) {
+        if (!promptForToken()) {
+          return Promise.reject(new Error('GitHub token required'));
         }
       }
       
-      // Use the stored API key if one exists
-      if (apiKey && options && options.headers) {
-        options.headers.Authorization = `Bearer ${apiKey}`;
+      // Use the stored token if one exists
+      if (token && options && options.headers) {
+        options.headers.Authorization = `Bearer ${token}`;
       }
     }
     
@@ -262,10 +260,10 @@ document.addEventListener('DOMContentLoaded', () => {
       showHistory();
     }
     
-    // K key to enter API key
+    // K key to enter GitHub token
     if (e.code === 'KeyK' && e.altKey) {
       e.preventDefault();
-      promptForApiKey();
+      promptForToken();
     }
   });
   
@@ -286,8 +284,8 @@ document.addEventListener('DOMContentLoaded', () => {
   infoDiv.style.fontSize = '12px';
   infoDiv.style.color = '#666';
   infoDiv.innerHTML = `
-    <p>Keyboard shortcuts: Spacebar (toggle recording), Alt+H (history), Alt+K (API key)</p>
-    <p>Add your OpenAI API key with Alt+K or when prompted</p>
+    <p>Keyboard shortcuts: Spacebar (toggle recording), Alt+H (history), Alt+K (GitHub token)</p>
+    <p>Add your GitHub token with Alt+K or when prompted</p>
   `;
   document.body.appendChild(infoDiv);
 });

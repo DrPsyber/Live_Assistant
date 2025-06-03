@@ -378,7 +378,7 @@ class UIStateManager {
 // API Key Management
 class APIKeyManager {
     constructor() {
-        this.openAIStorageKey = 'openai_api_key';
+        this.githubStorageKey = 'github_token';
         this.elevenLabsStorageKey = 'elevenlabs_api_key';
     }
     
@@ -386,10 +386,10 @@ class APIKeyManager {
         if (!key) return false;
         
         try {
-            localStorage.setItem(this.openAIStorageKey, key);
+            localStorage.setItem(this.githubStorageKey, key);
             return true;
         } catch (error) {
-            console.error('Failed to save OpenAI API key:', error);
+            console.error('Failed to save GitHub token:', error);
             return false;
         }
     }
@@ -407,7 +407,7 @@ class APIKeyManager {
     }
     
     getAPIKey() {
-        return localStorage.getItem(this.openAIStorageKey) || '';
+        return localStorage.getItem(this.githubStorageKey) || '';
     }
     
     getElevenLabsAPIKey() {
@@ -416,7 +416,7 @@ class APIKeyManager {
     
     hasValidAPIKey() {
         const key = this.getAPIKey();
-        return key && key.startsWith('sk-') && key.length > 20;
+        return key && key.startsWith('ghp_') && key.length > 20;
     }
     
     hasValidElevenLabsAPIKey() {
@@ -425,19 +425,19 @@ class APIKeyManager {
     }
     
     updateKeyStatus() {
-        const openAIStatusElement = $('#api-key-status-text');
-        const apiKeyInput = $('#api-key');
-        const apiKeyStatus = document.querySelector('.api-key-status');
+        const githubStatusElement = $('#github-token-status-text');
+        const githubTokenInput = $('#github-token');
+        const tokenStatus = document.querySelector('.token-status');
         
         if (this.hasValidAPIKey()) {
-            openAIStatusElement.textContent = '✓ Valid OpenAI API key connected';
-            openAIStatusElement.style.color = 'var(--success-color)';
-            apiKeyStatus.classList.add('active');
-            apiKeyInput.value = this.getAPIKey();
+            githubStatusElement.textContent = '✓ Valid GitHub token connected';
+            githubStatusElement.style.color = 'var(--success-color)';
+            tokenStatus.classList.add('active');
+            githubTokenInput.value = this.getAPIKey();
         } else {
-            openAIStatusElement.textContent = 'Please enter your OpenAI API key';
-            openAIStatusElement.style.color = '';
-            apiKeyStatus.classList.remove('active');
+            githubStatusElement.textContent = 'Please enter your GitHub token';
+            githubStatusElement.style.color = '';
+            tokenStatus.classList.remove('active');
         }
         
         const elevenLabsStatusElement = $('#elevenlabs-api-key-status-text');
