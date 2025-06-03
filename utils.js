@@ -328,22 +328,11 @@ class UIStateManager {
         
         this.currentState = this.states.READY;
     }
-    
     updateState(newState) {
-        this.currentState = newState;
-        
-        // Use direct document.querySelector instead of $ utility function
-        const statusDot = document.querySelector('#status-dot');
-        // statusText and recordBtn might not exist, so handle them carefully
-        const statusText = document.querySelector('#status-text');
-        const recordBtn = document.querySelector('#toggle'); // Updated to use the toggle button ID
-        
-        // Only proceed if we have a status dot element
-        if (statusDot) {
-            // Update status indicator
+        this.applyStateUpdate = (state, statusDot, statusText, recordBtn) => {
             statusDot.className = ''; // Reset classes
             
-            switch (newState) {
+            switch (state) {
                 case this.states.READY:
                     if (statusText) statusText.textContent = 'Ready';
                     if (recordBtn) recordBtn.classList.remove('recording');
@@ -367,10 +356,34 @@ class UIStateManager {
                     if (recordBtn) recordBtn.classList.remove('recording');
                     break;
             }
-        } else {
-            console.warn('Status dot element not found');
-        }
+        };
+        this.currentState = newState;
         
+        // Wait for DOM to be fully ready and retry if elements not found
+        const updateWithRetry = (retryCount = 0) => {
+            const statusDot = document.querySelector('#status-dot');
+            const statusText = document.querySelector('#status-text');
+            const recordBtn = document.querySelector('#toggle');
+            
+            // Only proceed if we have a status dot element
+            if (statusDot) {
+                // Update status indicator
+                statusDot.className = ''; // Reset classes
+                
+                this.applyStateUpdate(newState, statusDot, statusText, recordBtn);
+            } else if (retryCount < 3) {
+                // Retry after a short delay if status dot not found
+                console.warn(`Status dot element not found, retrying (${retryCount + 1}/3)...`);
+                setTimeout(() => updateWithRetry(retryCount + 1), 100);
+                console.warn(`Retrying DOM update (${retryCount + 1}/3)...`);
+                setTimeout(() => updateWithRetry(retryCount + 1), 100);
+                return; // Avoid returning state value from callback
+            } else {
+                console.warn('Status dot element not found after 3 retries');
+            }
+        };
+        
+        updateWithRetry();
         return newState;
     }
 }

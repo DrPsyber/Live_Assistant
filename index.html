@@ -1,7 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transcribe n Vibe</title>
+<title>Live Assistant</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/variables.css">
 <link rel="stylesheet" href="assets/css/base.css">
@@ -42,11 +42,7 @@
     <div class="model-selector">
       <label for="model-select">Model:</label>
       <select id="model-select">
-        <option value="gpt-4.1">GPT-4.1</option>
-        <option value="gpt-4o">GPT-4o</option>
-        <option value="gpt-4o-mini">GPT-4o Mini</option>
-        <option value="o1-preview">O1 Preview</option>
-        <option value="o1-mini">O1 Mini</option>
+        <option value="">Loading models...</option>
       </select>
     </div>
   </div>
@@ -186,6 +182,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Load saved state
   loadSavedState();
+  
+  // Fetch and populate models from GitHub AI catalog
+  fetchAndPopulateModels();
   
   // No API key checks needed up front
   
@@ -356,6 +355,7 @@ function loadSavedState() {
   const savedPrompt = localStorage.getItem('system_prompt');
   if (savedPrompt) {
     appState.systemPrompt = savedPrompt;
+    
     // Update dialog version if it exists
     const dialogPrompt = document.getElementById('system-prompt-dialog');
     if (dialogPrompt) {
@@ -367,7 +367,6 @@ function loadSavedState() {
   const savedModel = localStorage.getItem('selected_model');
   if (savedModel) {
     appState.selectedModel = savedModel;
-    document.getElementById('model-select').value = savedModel;
   }
   
   // Load GitHub token
@@ -416,6 +415,158 @@ function loadSavedState() {
       updatePresetOptions();
       updatePresetOptionsDialog();
     }, 0);
+  }
+}
+
+// Fetch and populate models from GitHub AI catalog
+async function fetchAndPopulateModels() {
+  let models = null;
+  
+  // Try multiple approaches to fetch models
+  const fetchMethods = [
+    // Method 1: Direct fetch (works in production/when CORS is enabled)
+    async () => {
+      console.log('Trying direct fetch...');
+      const response = await fetch('https://models.github.ai/catalog/models');
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    },
+    
+    // Method 2: CORS proxy
+    async () => {
+      console.log('Trying CORS proxy...');
+      const apiUrl = 'https://models.github.ai/catalog/models';
+      const corsProxy = 'https://api.allorigins.win/get?url=';
+      const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const proxyData = await response.json();
+      return JSON.parse(proxyData.contents);
+    },
+    
+    // Method 3: Alternative CORS proxy
+    async () => {
+      console.log('Trying alternative CORS proxy...');
+      const apiUrl = 'https://models.github.ai/catalog/models';
+      const corsProxy = 'https://corsproxy.io/?';
+      const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    }
+  ];
+  
+  // Try each method until one works
+  for (const fetchMethod of fetchMethods) {
+    try {
+      models = await fetchMethod();
+      if (models && Array.isArray(models)) {
+        console.log(`Successfully fetched ${models.length} models from GitHub AI catalog`);
+        break;
+      }
+    } catch (error) {
+      console.warn('Fetch method failed:', error.message);
+      continue;
+    }
+  }
+  
+  // If all methods failed, use fallback
+  if (!models) {
+    console.error('All fetch methods failed, using fallback models');
+    throw new Error('Unable to fetch models from any source');
+  }
+
+  try {
+    const modelSelect = document.getElementById('model-select');
+    if (!modelSelect) {
+      console.error('Model select element not found');
+      return;
+    }
+    
+    // Clear existing options
+    modelSelect.innerHTML = '';
+    
+    // Filter for text generation models only (exclude embeddings)
+    const textModels = models.filter(model => 
+      model.supported_output_modalities && 
+      model.supported_output_modalities.includes('text') &&
+      !model.supported_output_modalities.includes('embeddings')
+    );
+    
+    // Sort models by publisher and name for better organization
+    textModels.sort((a, b) => {
+      if (a.publisher !== b.publisher) {
+        return a.publisher.localeCompare(b.publisher);
+      }
+      return a.name.localeCompare(b.name);
+    });
+    
+    // Populate dropdown with models
+    textModels.forEach(model => {
+      const option = document.createElement('option');
+      // Only keep characters after the '/' in model.id
+      option.value = model.id.includes('/') ? model.id.split('/')[1] : model.id;
+      // Store the full model ID as a data attribute for API calls
+      option.dataset.fullModelId = model.id;
+      // Format display name as "Publisher: Model Name"
+      option.textContent = `${model.publisher}: ${model.name}`;
+      option.title = model.summary || model.name; // Add tooltip with description
+      modelSelect.appendChild(option);
+    });
+    
+    // Set the saved model or default to the first available model
+    const savedModel = localStorage.getItem('selected_model');
+    const shortSavedModel = savedModel && savedModel.includes('/') ? savedModel.split('/')[1] : savedModel;
+    
+    if (shortSavedModel && textModels.some(model => {
+      const shortId = model.id.includes('/') ? model.id.split('/')[1] : model.id;
+      return shortId === shortSavedModel;
+    })) {
+      modelSelect.value = shortSavedModel;
+      appState.selectedModel = shortSavedModel;
+    } else if (textModels.length > 0) {
+      // Default to GPT-4o if available, otherwise first model
+      const defaultModel = textModels.find(model => model.id === 'openai/gpt-4o') || textModels[0];
+      const shortDefaultId = defaultModel.id.includes('/') ? defaultModel.id.split('/')[1] : defaultModel.id;
+      modelSelect.value = shortDefaultId;
+      appState.selectedModel = shortDefaultId;
+      localStorage.setItem('selected_model', shortDefaultId);
+    }
+    
+    console.log(`Model dropdown populated with ${textModels.length} models. Selected: ${appState.selectedModel}`);
+    
+  } catch (error) {
+    console.error('Error processing models:', error);
+    
+    // Fallback to hardcoded models if processing fails
+    const modelSelect = document.getElementById('model-select');
+    if (modelSelect) {
+      modelSelect.innerHTML = `
+        <option value="gpt-4o">OpenAI: GPT-4o</option>
+        <option value="gpt-4o-mini">OpenAI: GPT-4o Mini</option>
+        <option value="o1-preview">OpenAI: O1 Preview</option>
+        <option value="o1-mini">OpenAI: O1 Mini</option>
+        <option value="gpt-4">OpenAI: GPT-4</option>
+        <option value="gpt-3.5-turbo">OpenAI: GPT-3.5 Turbo</option>
+        <option value="claude-3-5-sonnet">Anthropic: Claude 3.5 Sonnet</option>
+        <option value="claude-3-haiku">Anthropic: Claude 3 Haiku</option>
+        <option value="llama-3.1-70b-instruct">Meta: Llama 3.1 70B</option>
+        <option value="llama-3.1-8b-instruct">Meta: Llama 3.1 8B</option>
+        <option value="mistral-large">Mistral: Large</option>
+        <option value="phi-3-medium-4k-instruct">Microsoft: Phi-3 Medium</option>
+      `;
+      
+      // Set the saved model or default
+      const savedModel = localStorage.getItem('selected_model');
+      const shortSavedModel = savedModel && savedModel.includes('/') ? savedModel.split('/')[1] : savedModel;
+      if (shortSavedModel) {
+        modelSelect.value = shortSavedModel;
+        appState.selectedModel = shortSavedModel;
+      } else {
+        modelSelect.value = 'gpt-4o';
+        appState.selectedModel = 'gpt-4o';
+      }
+      
+      console.log('Using fallback models due to fetch/processing error');
+    }
   }
 }
 
@@ -977,7 +1128,7 @@ function toggleRecording() {
           window.uiStateManager.updateState(window.uiStateManager.states.LISTENING);
         }
       } catch (e) {
-        console.warn('Error updating UI state:', e);
+        console.warn('Error updating UIState:', e);
       }
       
       // Start audio context and visualizer if available
@@ -1031,6 +1182,21 @@ r.onresult = async (e) => {
   }
 };
 
+// Helper function to format model display
+function formatModelDisplay(modelDisplay) {
+  if (modelDisplay.includes('/')) {
+    // New format: "publisher/model-name" -> "Publisher: Model Name"
+    const [publisher, modelName] = modelDisplay.split('/');
+    const publisherCapitalized = publisher.charAt(0).toUpperCase() + publisher.slice(1);
+    return `${publisherCapitalized}: ${modelName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
+  } else {
+    // Legacy format handling
+    return modelDisplay
+      .replace('gpt-4o-2024-08-06', 'GPT-4o')
+      .replace('gpt-4o-mini-2024-07-18', 'GPT-4o Mini');
+  }
+}
+
 // Render the history list
 function renderHistoryList() {
   const historyList = document.getElementById('history-list');
@@ -1059,9 +1225,10 @@ function renderHistoryList() {
     
     const model = document.createElement('span');
     // Friendly display names for models
-    let modelDisplay = item.model
-      .replace('gpt-4o-2024-08-06', 'GPT-4o')
-      .replace('gpt-4o-mini-2024-07-18', 'GPT-4o Mini');
+    let modelDisplay = item.model;
+    
+    // Format model display using helper function
+    modelDisplay = formatModelDisplay(modelDisplay);
     
     model.textContent = modelDisplay;
     
@@ -1145,8 +1312,13 @@ async function generateResponse(text) {
   }
   
   try {
-    // Get selected model
-    const model = appState.selectedModel;
+    // Get selected model - need full model ID for API calls
+    const modelSelect = document.getElementById('model-select');
+    const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+    const fullModelId = selectedOption?.dataset.fullModelId || appState.selectedModel;
+    
+    // Fallback: if no data attribute, assume it needs 'openai/' prefix for common models
+    const model = fullModelId || (appState.selectedModel.includes('/') ? appState.selectedModel : `openai/${appState.selectedModel}`);
     
     // Get system prompt
     const systemPrompt = appState.systemPrompt;
@@ -1290,7 +1462,7 @@ r.onend = () => {
 </script>
 
 <footer class="footer">
-  <a href="https://myaiadvantage.com/" target="_blank" rel="noopener">Visit myaiadvantage.com</a>
+  <p>Powered by <a href="https://myaiadvantage.com/" target="_blank" rel="noopener">myaiadvantage.com</a></p>
 </footer>
 
 <!-- Include utils.js for UIStateManager and other utilities -->

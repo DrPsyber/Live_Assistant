@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Model ID Test</title>
+</head>
+<body>
+    <h1>Model ID Extraction Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        // Test the model ID extraction logic
+        const testModels = [
+            'openai/gpt-4o',
+            'openai/gpt-4o-mini', 
+            'anthropic/claude-3-5-sonnet',
+            'meta/llama-3.1-70b-instruct',
+            'gpt-4o' // Already short form
+        ];
+        
+        const results = document.getElementById('results');
+        
+        testModels.forEach(modelId => {
+            // Apply the same logic as in the main app
+            const shortId = modelId.includes('/') ? modelId.split('/')[1] : modelId;
+            const fullId = modelId; // This would be stored in data-full-model-id
+            
+            results.innerHTML += `
+                <p>
+                    <strong>Original:</strong> ${modelId}<br>
+                    <strong>Short ID:</strong> ${shortId}<br>
+                    <strong>Full ID:</strong> ${fullId}
+                </p>
+            `;
+        });
+        
+        // Test the fallback logic from generateResponse function
+        results.innerHTML += '<h2>Fallback Logic Test</h2>';
+        
+        const testSelectedModel = 'gpt-4o';
+        const mockSelectedOption = { dataset: { fullModelId: 'openai/gpt-4o' } };
+        
+        // Simulate the logic from generateResponse
+        const fullModelId = mockSelectedOption?.dataset.fullModelId || testSelectedModel;
+        const model = fullModelId || (testSelectedModel.includes('/') ? testSelectedModel : `openai/${testSelectedModel}`);
+        
+        results.innerHTML += `
+            <p>
+                <strong>Test selectedModel:</strong> ${testSelectedModel}<br>
+                <strong>Retrieved fullModelId:</strong> ${fullModelId}<br>
+                <strong>Final model for API:</strong> ${model}
+            </p>
+        `;
+    </script>
+</body>
+</html>
