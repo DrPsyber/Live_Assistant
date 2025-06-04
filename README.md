@@ -1,4 +1,4 @@
-# Transcribe n Vibe
+# Live Assistant
 
 A real-time speech transcription and AI-powered response application that helps you handle objections and generate comebacks using OpenAI's API.
 
