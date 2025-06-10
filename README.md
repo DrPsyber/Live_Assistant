@@ -24,7 +24,7 @@ A real-time speech transcription and AI-powered response application that helps 
 
 1. **Navigate to the project directory:**
    ```bash
-   cd /Users/zmetteer/GitHub/Transcribe_n_Vibe
+   cd ~/GitHub/Transcribe_n_Vibe
    ```
 
 2. **Start a local HTTPS server:**
