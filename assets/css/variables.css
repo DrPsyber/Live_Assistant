@@ -5,6 +5,7 @@
   --lighter-gray: #454554;
   --darker-gray: #343541;
   --smart-green: #0EA27F;
+  --darker-green: #rgba(14, 162, 127, 0.8);
   
   /* Secondary Brand Colors */
   --action-yellow: #FEDF0A;
@@ -23,4 +24,14 @@
   --accent-color: var(--action-yellow);
   --radius: 12px;
   --inner-radius: 8px;
+
+  /* Buttons */
+  --button-height: fit-content;
+  --button-radius: 16px;
+  --button-padding: 0.75rem 1rem;
+  --button-border: 1px solid var(--smart-green);
+  --button-bg: var(--darker-green);
+
+  /* Typography */
+  --font-family: 'Prompt', sans-serif;
 }
