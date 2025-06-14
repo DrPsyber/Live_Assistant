@@ -1,37 +1,47 @@
 /* CSS Custom Properties and Theme Variables */
 :root {
-  /* Primary Brand Colors */
-  --beige: #E3E2E3;
-  --lighter-gray: #454554;
-  --darker-gray: #343541;
-  --smart-green: #0EA27F;
-  --darker-green: #rgba(14, 162, 127, 0.8);
-  
-  /* Secondary Brand Colors */
-  --action-yellow: #FEDF0A;
-  --smart-blue: #3536DF;
-  --creative-purple: #41297D;
-  --rebel-orange: #FE524E;
-  
-  /* UI Mapping */
-  --bg-color: var(--beige);
-  --text-color: var(--darker-gray);
-  --primary-color: var(--smart-green);
-  --primary-hover: var(--creative-purple);
-  --secondary-bg: #f8f9fa;
-  --border-color: var(--lighter-gray);
-  --shadow-color: rgba(0, 0, 0, 0.1);
-  --accent-color: var(--action-yellow);
-  --radius: 12px;
-  --inner-radius: 8px;
-
-  /* Buttons */
-  --button-height: fit-content;
-  --button-radius: 16px;
-  --button-padding: 0.75rem 1rem;
-  --button-border: 1px solid var(--smart-green);
-  --button-bg: var(--darker-green);
-
   /* Typography */
   --font-family: 'Prompt', sans-serif;
+
+  /* Primary Brand Colors */
+  --white: #FFFFFF;
+  --black: #000000;
+  --beige: #E3E2E3;
+  --light-gray: #BBBBBB;
+  --dark-gray: #333333;
+  --light-green: #77FF00;
+  --dark-green: #77AA00;
+  --light-red: #FF1100;
+  --dark-red: #BB1100;
+  
+  /* Secondary Brand Colors */
+  --action-yellow: #FFFF22;
+  --smart-blue: #2222FF;
+  --creative-purple: #EE00FF;
+  --rebel-orange: #FF5500;
+  
+  /* UI Mapping */
+  --pri-bg-color: var(--beige);
+  --sec-bg-color: var(--white);
+  --text-color: var(--black);
+  --border-color: var(--light-gray);
+  --primary-color: var(--dark-gray);
+  --primary-hover: var(--creative-purple);
+  --shadow-color: var(--black);
+  --accent-color: var(--action-yellow);
+  --outer-radius: 1rem;
+  --inner-radius: .5rem;
+
+  /* Button Colors */
+  --red-btn-bg: var(--dark-red);
+  --red-btn-hover-bg: var(--light-red);
+  --red-btn-border: linear-gradient(var(--dark-red), var(--light-red));
+  --green-btn-bg: var(--dark-green);
+  --green-btn-hover-bg: var(--light-green);
+  --green-btn-border: linear-gradient(var(--dark-green), var(--light-green));
+
+  /* Shadows */
+  --shadow-small: 0 1px 2px var(--shadow-color);
+  --shadow-medium: 0 4px 8px var(--shadow-color);
+  --shadow-large: 0 8px 16px var(--shadow-color);
 }

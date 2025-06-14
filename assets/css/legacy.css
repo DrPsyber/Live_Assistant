@@ -93,10 +93,10 @@ pre {
 
 /* Styles for visualizer bars */
 .visualizer-bar {
-  width: 3px;
-  display: inline-block;
+  width: 10px;
+  display: flex;
   margin: 0 1px;
-  height: 5px;
+  height: 3px;
   background-color: var(--primary-color);
   transition: height 0.1s ease-out;
 }
