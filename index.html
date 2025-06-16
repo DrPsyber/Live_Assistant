@@ -1,5 +1,7 @@
 <!doctype html>
 
+<!-- Head -->
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,55 +19,66 @@
 </head>
 
 <body>
+  <!-- Header -->
   <div class="header-controls">
-    <h2>Live Assistant</h2>
+    <h1>Live Assistant</h1>
     <div class="controls">
       <button id="theme-toggle" title="Toggle dark mode">🌓</button>
       <button id="settings-btn" title="Settings">⚙️</button>
     </div>
   </div>
+
+  <!-- App Description -->
   <div class="app-description">
     <p>Record objections and get AI-powered comeback responses in real-time</p>
   </div>
 
-  <div class="options-row">
-    <div class="recording-controls">
-      <button id="toggle" class="record-btn">
-        <span id="status-dot"></span>🎤 Start Listening
-      </button>
-      <div id="visualizer-container"></div>
-    </div>
-  </div>
-
-  <div class="transcription-box">
-    <p class="box-label">🎙️ Transcription:</p>
-    <pre id="lastObjection">Your speech will appear here...</pre>
-  </div>
-
-  <div class="response-container">
-    <div class="response-header">
-      <p class="box-label">💡 AI Response:</p>
-      <div class="model-selector">
-        <label for="model-select">Model:</label>
-        <select id="model-select">
-          <option value="">Loading models...</option>
-        </select>
+  <!-- Recording Controls -->
+  <div class="options-container">
+    <div class="options-row">
+      <div class="recording-controls">
+        <div id="visualizer-container-left"></div>
+        <button id="toggle" class="record-btn">🎤 Start Listening</button>
+        <div id="visualizer-container-right"></div>
       </div>
     </div>
-    <div class="response-box">
-      <pre id="reply">Responses will appear here...</pre>
+  </div>
+
+  <!-- Transcription Box -->
+  <div id="transcription-box" class="box">
+    <div id="transcription-header-row" class="box-header-row">
+      <div class="box-label">🎙️ Transcription:</div>
     </div>
+    <pre id="lastObjection" class="box-text">Your speech will appear here...</pre>
+  </div>
+
+  <!-- Response Box -->
+  <div id="response-box" class="box">
+    <div id="response-header-row" class="box-header-row">
+      <div class="box-label">💡 AI Response:</div>
+    </div>
+    <pre id="reply" class="box-text">Responses will appear here...</pre>
+  </div>
+
+  <!-- Response History Dialog -->
+  <div id="history-box" class="box hidden">
+    <div id="history-header-row" class="box-header-row">
+      <div class="box-label">📜 Response History:</div>
+      <div id="history-button-container" class="button-container"><button id="clear-history" class="clear-btn"
+          title="Clear all history">❌</button></div>
+    </div>
+    <pre id="history-list" class="box-text">Your response history will appear here...</pre>
   </div>
 
   <!-- Preset Management Dialog -->
   <div id="preset-dialog" class="dialog hidden">
     <div class="dialog-content">
-      <h3>Manage Prompt Presets</h3>
+      <h2>Manage Prompt Presets</h2>
       <div id="preset-list" class="preset-list">
         <!-- Presets will be loaded here -->
       </div>
       <div class="dialog-buttons">
-        <button id="preset-dialog-close">Close</button>
+        <button id="preset-dialog-close">↩️</button>
       </div>
     </div>
   </div>
@@ -73,69 +86,86 @@
   <!-- New Preset Dialog -->
   <div id="new-preset-dialog" class="dialog hidden">
     <div class="dialog-content">
-      <h3>Save as New Preset</h3>
+      <h2>Save as New Preset</h2>
       <label for="new-preset-name">Preset Name:</label>
       <input type="text" id="new-preset-name" placeholder="Enter a name for this preset">
       <div class="dialog-buttons">
-        <button id="new-preset-cancel">Cancel</button>
-        <button id="new-preset-save">Save</button>
+        <button id="new-preset-cancel">↩️</button>
+        <button id="new-preset-save">✅</button>
       </div>
       <p id="new-preset-status"></p>
     </div>
   </div>
 
-  <div class="history-container">
-    <div class="history-header">
-      <h3>Response History</h3>
-      <button id="clear-history" class="clear-btn" title="Clear all history">Clear History</button>
-    </div>
-    <div id="history-list" class="history-list"></div>
-  </div>
+
 
   <!-- Settings Dialog -->
-  <div id="api-key-dialog" class="dialog hidden">
+  <div id="settings-dialog" class="dialog hidden">
     <div class="dialog-content">
-      <h3>Settings</h3>
+      <h2>Settings</h2>
       <p class="info-text">Your settings are stored locally in your browser.</p>
 
       <!-- GitHub Token Section -->
-      <div class="api-key-section">
-        <label for="github-token-input">GitHub Token:</label>
-        <input type="password" id="github-token-input" placeholder="ghp_..." />
+      <div id="api-key-section" class="input-section">
+        <div id="label-container" class="flex-row">
+          <label for="github-token-textarea">GitHub Token:</label>
+          <div class="flex-spacer" style="flex:1;"></div>
+          <textarea name="github-token" id="github-token-textarea" placeholder="ghp_************************************"></textarea>
+        </div>
       </div>
-      <div class="dialog-buttons">
-        <p id="api-key-status"></p>
-        <button id="api-key-save">Apply</button>
-        <button id="api-key-cancel">Cancel</button>
+
+      <!-- Model Selection Section -->
+      <div class="model-selector">
+        <label for="model-select">Model:</label>
+        <select id="model-select">
+          <option value="">Loading models...</option>
+        </select>
       </div>
 
       <!-- System Prompt Section -->
       <div class="api-key-section">
-        <label for="system-prompt-dialog">System Prompt:</label>
-        <div class="preset-controls">
-          <select id="preset-select-dialog">
-            <option value="">-- Choose Preset --</option>
-            <option value="executive-reframer">Executive Reframer</option>
-            <option value="negotiation">Negotiation Expert</option>
-          </select>
-          <button id="save-as-preset-dialog" title="Save as new preset">Save As+</button>
-          <button id="manage-presets-dialog" title="Manage presets">⋮</button>
+        <div id="system-prompt-header-row" class="flex-row">
+          <label for="system-prompt-dialog">System Prompt:</label>
+          <div class="flex-spacer" style="flex:1;"></div>
+          <div class="preset-controls">
+            <select id="preset-select-dialog">
+              <option value="">-- Choose Preset --</option>
+              <option value="executive-reframer">Executive Reframer</option>
+              <option value="negotiation">Negotiation Expert</option>
+            </select>
+          </div>
+          <div class="preset-buttons">
+            <button id="save-as-preset-dialog" title="Save as new preset">💾</button>
+            <button id="manage-presets-dialog" title="Manage presets">🍔</button>
+          </div>
         </div>
-        <textarea id="system-prompt-dialog" rows="4"
-          placeholder="Enter your system prompt here...">You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.</textarea>
+      </div>
+      <div id="sys-prompt-row" class="flex-row">
+        <textarea id="system-prompt-dialog" rows="6" placeholder="Enter your system prompt here...">You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.</textarea>
       </div>
 
       <!-- Upload File(s) Section -->
-      <div class="api-key-section">
-        <label for="file-upload-input">Upload File(s):</label>
-        <div class="file-upload-container">
+      <div id="file-upload-section" class="api-key-section">
+        <div id="file-upload-container" class="flex-row">
+          <label for="file-upload-input">Upload File(s):</label>
+          <div class="flex-spacer" style="flex:1;"></div>
           <input type="file" id="file-upload-input" multiple
             accept=".txt,.md,.json,.csv,.log,.js,.ts,.html,.css,.py,.java,.cpp,.c,.h" />
-          <button id="clear-files-btn" title="Clear all uploaded files">Clear All</button>
+          <button id="clear-btn" title="Clear all uploaded files">❌</button>
         </div>
         <div id="uploaded-files-list" class="uploaded-files-list"></div>
-        <p class="info-text">Files will be used as context for your prompts. Supported formats: text, markdown, code
-          files, etc.</p>
+      </div>
+      <div>
+        <div class="info-text">Files will be used as context for your prompts. Supported formats: text, markdown, code
+          files, etc.</div>
+      </div>
+
+      <!-- Dialog Buttons -->
+      <div id="dialog-button-row" class="flex-row">
+        <div id="api-key-status"></div>
+        <div class="flex-spacer" style="flex:1;"></div>
+        <button id="api-key-save">✅</button>
+        <button id="api-key-cancel">↩️</button>
       </div>
 
     </div>
@@ -154,7 +184,7 @@
   const appState = {
     responseHistory: [],
     systemPrompt: 'You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.',
-    selectedModel: 'gpt-4o',
+    selectedModel: 'gpt-4.1',
     uploadedFiles: [],
     presets: {
       'executive-reframer': {
@@ -336,7 +366,7 @@
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         try {
-          const apiKeyDialog = document.getElementById('api-key-dialog');
+          const apiKeyDialog = document.getElementById('settings-dialog');
           const presetDialog = document.getElementById('preset-dialog');
           const newPresetDialog = document.getElementById('new-preset-dialog');
 
@@ -532,8 +562,8 @@
         modelSelect.value = shortSavedModel;
         appState.selectedModel = shortSavedModel;
       } else if (textModels.length > 0) {
-        // Default to GPT-4o if available, otherwise first model
-        const defaultModel = textModels.find(model => model.id === 'openai/gpt-4o') || textModels[0];
+        // Default to GPT-4.1 if available, otherwise first model
+        const defaultModel = textModels.find(model => model.id === 'openai/gpt-4.1') || textModels[0];
         const shortDefaultId = defaultModel.id.includes('/') ? defaultModel.id.split('/')[1] : defaultModel.id;
         modelSelect.value = shortDefaultId;
         appState.selectedModel = shortDefaultId;
@@ -570,8 +600,8 @@
           modelSelect.value = shortSavedModel;
           appState.selectedModel = shortSavedModel;
         } else {
-          modelSelect.value = 'gpt-4o';
-          appState.selectedModel = 'gpt-4o';
+          modelSelect.value = 'gpt-4.1';
+          appState.selectedModel = 'gpt-4.1';
         }
 
         console.log('Using fallback models due to fetch/processing error');
@@ -696,6 +726,7 @@
   function showNewPresetDialog() {
     document.getElementById('new-preset-name').value = '';
     document.getElementById('new-preset-status').textContent = '';
+    document.getElementById('new-preset-dialog').classList.add('new-preset-dialog');
     document.getElementById('new-preset-dialog').classList.remove('hidden');
   }
 
@@ -837,17 +868,17 @@
     const themeToggle = document.getElementById('theme-toggle');
     if (themeToggle) {
       if (isDark) {
-        themeToggle.textContent = '🌓';
+        themeToggle.textContent = '🌙';
       } else {
-        themeToggle.textContent = '🌓';
+        themeToggle.textContent = '☀️';
       }
     }
   }
 
   // API Key dialog functions
   function showApiKeyDialog() {
-    const dialog = document.getElementById('api-key-dialog');
-    const githubInput = document.getElementById('github-token-input');
+    const dialog = document.getElementById('settings-dialog');
+    const githubInput = document.getElementById('github-token-textarea');
     const systemPromptInput = document.getElementById('system-prompt-dialog');
     const presetSelect = document.getElementById('preset-select-dialog');
     const status = document.getElementById('api-key-status');
@@ -889,14 +920,14 @@
   }
 
   function hideApiKeyDialog() {
-    const dialog = document.getElementById('api-key-dialog');
+    const dialog = document.getElementById('settings-dialog');
     if (dialog) {
       dialog.classList.add('hidden');
     }
   }
 
   function saveApiKey() {
-    const githubInput = document.getElementById('github-token-input');
+    const githubInput = document.getElementById('github-token-textarea');
     const systemPromptInput = document.getElementById('system-prompt-dialog');
     const status = document.getElementById('api-key-status');
 
@@ -1111,13 +1142,32 @@
       }
 
       // Stop visualizer when recording stops if available
-      if (audioProcessor && typeof audioProcessor.stopVisualizer === 'function') {
+      let leftAudioProcessor = window.audioProcessorLeft || null;
+      let rightAudioProcessor = window.audioProcessorRight || null;
+
+      if (rightAudioProcessor && typeof rightAudioProcessor.stopVisualizer === 'function') {
         try {
-          audioProcessor.stopVisualizer();
+          rightAudioProcessor.stopVisualizer();
           // Hide the visualizer container
-          const visualizerContainer = document.getElementById('visualizer-container');
-          if (visualizerContainer) {
-            visualizerContainer.style.display = 'none';
+          const visualizerContainerRight = document.getElementById('visualizer-container-right');
+          if (visualizerContainerRight) {
+            visualizerContainerRight.style.display = 'none';
+          }
+        } catch (e) {
+          console.error('Error stopping right visualizer:', e);
+        }
+      }
+      if (leftAudioProcessor && typeof leftAudioProcessor.stopVisualizer === 'function') {
+        try {
+          leftAudioProcessor.stopVisualizer();
+          // Hide the visualizer container
+          const visualizerContainerLeft = document.getElementById('visualizer-container-left');
+          if (visualizerContainerLeft) {
+            visualizerContainerLeft.style.display = 'none';
+          }
+          const visualizerContainerRight = document.getElementById('visualizer-container-right');
+          if (visualizerContainerRight) {
+            visualizerContainerRight.style.display = 'none';
           }
         } catch (e) {
           console.error('Error stopping visualizer:', e);
@@ -1141,27 +1191,73 @@
         }
 
         // Start audio context and visualizer if available
-        if (audioProcessor && typeof audioProcessor.initAudioContext === 'function') {
-          try {
-            // Get audio stream for visualization
-            navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-              .then(stream => {
-                audioProcessor.initAudioContext()
-                  .then(() => {
-                    const visualizerContainer = document.getElementById('visualizer-container');
-                    if (visualizerContainer && typeof audioProcessor.setupVisualizer === 'function') {
-                      // Make the container visible
-                      visualizerContainer.style.display = 'flex';
-                      audioProcessor.setupVisualizer(stream, visualizerContainer);
-                    }
-                  })
-                  .catch(err => console.error('Failed to initialize audio context:', err));
-              })
-              .catch(err => console.error('Error accessing microphone:', err));
-          } catch (e) {
-            console.error('Error with audio processing:', e);
-            // Continue with recording even if visualization fails
+        // let leftAudioProcessor = window.audioProcessorLeft || null; // These are now handled within startVisualizers
+        // let rightAudioProcessor = window.audioProcessorRight || null; // These are now handled within startVisualizers
+
+        async function startVisualizers(stream) {
+          const visualizerContainerLeft = document.getElementById('visualizer-container-left');
+          const visualizerContainerRight = document.getElementById('visualizer-container-right');
+
+          // Ensure containers exist before trying to use them
+          if (!visualizerContainerLeft || !visualizerContainerRight) {
+            console.error('Visualizer container elements (visualizer-container-left or visualizer-container-right) not found in the DOM.');
+            return;
           }
+
+          // Make the containers visible
+          visualizerContainerLeft.style.display = 'flex';
+          visualizerContainerRight.style.display = 'flex';
+
+          const localLeftAudioProcessor = new AudioProcessor();
+          const localRightAudioProcessor = new AudioProcessor();
+
+          try {
+            // Initialize audio contexts for both processors
+            await localLeftAudioProcessor.initAudioContext();
+            await localRightAudioProcessor.initAudioContext();
+
+            // Setup each visualizer with the stream and its respective container
+            localLeftAudioProcessor.setupVisualizer(stream, visualizerContainerLeft);
+            // The same MediaStream can be used to create multiple MediaStreamAudioSourceNodes
+            localRightAudioProcessor.setupVisualizer(stream, visualizerContainerRight);
+
+            // Optionally, assign to window if they need to be accessed globally (e.g., for debugging or other parts of the app)
+            window.audioProcessorLeft = localLeftAudioProcessor;
+            window.audioProcessorRight = localRightAudioProcessor;
+
+            console.log('Left and Right visualizers started successfully.');
+
+          } catch (err) {
+            console.error('Failed to start one or both visualizers:', err);
+            // Attempt to hide containers on error to avoid empty spaces
+            if (visualizerContainerLeft) visualizerContainerLeft.style.display = 'none';
+            if (visualizerContainerRight) visualizerContainerRight.style.display = 'none';
+          }
+        }
+
+        // Revised logic for initializing visualizers:
+        // This replaces the old block that started around line 1176 which incorrectly used a single audioProcessor.
+        if (typeof AudioProcessor === 'function') {
+          navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+            .then(mediaStream => { // Renamed 'stream' to 'mediaStream' for clarity
+              startVisualizers(mediaStream);
+            })
+            .catch(err => {
+              console.error('Failed to get user media for visualizers:', err);
+              // Hide visualizer containers if permission is denied or another error occurs
+              const visualizerContainerLeft = document.getElementById('visualizer-container-left');
+              const visualizerContainerRight = document.getElementById('visualizer-container-right');
+              if (visualizerContainerLeft) visualizerContainerLeft.style.display = 'none';
+              if (visualizerContainerRight) visualizerContainerRight.style.display = 'none';
+              // alert('Could not access microphone. Audio visualizers will not work. Please check permissions.');
+            });
+        } else {
+          console.error('AudioProcessor class not found (utils.js might not be loaded or class is undefined). Visualizers will not start.');
+          // Ensure containers are hidden if the core class is missing
+          const visualizerContainerLeft = document.getElementById('visualizer-container-left');
+          const visualizerContainerRight = document.getElementById('visualizer-container-right');
+          if (visualizerContainerLeft) visualizerContainerLeft.style.display = 'none';
+          if (visualizerContainerRight) visualizerContainerRight.style.display = 'none';
         }
       } catch (e) {
         console.error('Error starting speech recognition:', e);
@@ -1470,6 +1566,7 @@
   };
 </script>
 
+<!-- Footer -->
 <footer class="footer">
   <p>Powered by <a href="https://myaiadvantage.com/" target="_blank" rel="noopener">myaiadvantage.com</a></p>
 </footer>

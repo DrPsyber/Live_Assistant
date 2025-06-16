@@ -1,42 +1,45 @@
 /* Button and Form Components */
 button {  
-  color: var(--white); 
+  background-color: var(--transparent);;
+  border-color: var(--transparent);
+  border-radius: var(--outer-radius);
   cursor: pointer; 
-  font-family: var(--font-family);
-  font-size: .8rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  transition: all 0.2s ease;
-  height: var(--button-height);
-  /* box-shadow: var(--shadow-medium); */
+  font-size: 1rem;
   text-shadow: var(--shadow-small);
+  transition: all 0.5s ease;
 }
 
-button:hover { 
-  transform: translateY(-.1rem);
+button:hover {
+  color: var(--pri-text-color);
   text-shadow: var(--shadow-medium);
 }
 
 /* Specialized Button Styles */
+/* Clear Button */
+.clear-btn {
+  font-size: .8rem;
+  background-color: rgba(0,0,0,0);
+  border: solid 2px rgba(0,0,0,0);
+  text-shadow: var(--shadow-small);
+}
+.clear-btn:hover {
+  text-shadow: var(--shadow-medium);
+}
+
+#clear-btn:hover {
+  color: var(--pri-text-color);
+  transform: translateY(-1px);
+}
+/* Controls */
 .controls button {
   font-size: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0,0,0,0);
+  background-color: var(--transparent);;
   border: solid 2px rgba(0,0,0,0);
 }
 
-/* Red Button */
-.red-button {
-  background-color: var(--red-btn-bg);
-  border: 2px solid var(--red-btn-border);
-  border-radius: var(--outer-radius);
-  color: var(--white);
-  padding: .25rem 1rem;
-}
-
-/* Green Button */
 .green-button {
   background-color: var(--green-btn-bg);
   border: 2px solid var(--green-btn-border);
@@ -46,9 +49,12 @@ button:hover {
 
 }
 
-.label {
-  font-family: "prompt", sans-serif;
-  font-size: 1rem;
+.red-button {
+  background-color: var(--red-btn-bg);
+  border: 2px solid var(--red-btn-border);
+  border-radius: var(--outer-radius);
+  color: var(--white);
+  padding: .25rem 1rem;
 }
 
 .record-btn {
@@ -56,13 +62,12 @@ button:hover {
   align-items: center;
   justify-content: center;
   font-size: .8rem;
-  font-weight: 600;
   transition: all 0.5s ease;
-  height: var(--button-height);
   border-radius: var(--outer-radius);
   box-shadow: var(--shadow-medium);
   background-color: var(--red-btn-bg);
   border-color: var(--red-btn-border);
+  color: var(--pri-text-color);
   z-index: 1000;
 }
 
@@ -84,22 +89,13 @@ button:hover {
   box-shadow: var(--shadow-medium);
 }
 
-/* Clear Button */
-.clear-btn {
-  font-size: 1.5rem;
-  background-color: rgba(0,0,0,0);
-  border: solid 2px rgba(0,0,0,0);
-  text-shadow: var(--shadow-small);
-}
-.clear-btn:hover {
-  text-shadow: var(--shadow-medium);
+.label {
+  flex: 1;
+  font-size: 1rem;
+  width: fit-content;
 }
 
-#clear-btn:hover {
-  color: var(--text-color);
-  transform: translateY(-1px);
-}
-
+/* Transcription Controls */
 #end-transcription {
   background-color: var(--smart-blue);
   text-shadow: var(--shadow-medium);
@@ -111,154 +107,130 @@ button:hover {
   box-shadow: var(--shadow-large);
 }
 
-/* Input Fields */
-.github-token-input {
-  width: 100%;
-  padding: 10px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--inner-radius);
-  background-color: var(--sec-bg-color);
-  color: var(--text-color);
-  transition: all 0.2s ease;
-  box-shadow: inset var(--shadow-medium);
-}
-
 /* Form Controls */
 select {
-  padding: var(--button-padding);
-  border-radius: var(--outer-radius);
   background-color: var(--sec-bg-color);
-  color: var(--text-color);
-  font-size: .8rem;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230EA27F' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  /* padding-right: 32px; */
+  border: 0 solid var(--transparent);
+  border-radius: var(--inner-radius);
+  color: var(--sec-text-color);
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: .8rem;
+  padding: .25rem;
 }
 
+select:hover,
 select:focus {
   outline: none;
-  border-color: var(--border-color);
-  box-shadow: 0 0 0 2px var(--shadow-color);
 }
 
-textarea {
-  width: calc(100% - 20px);
-  /* padding: 1rem; */
-  border-radius: var(--inner-radius);
-  border: 1px solid var(--border-color);
-  margin-bottom: 10px;
-  background-color: var(--pri-bg-color);
-  color: var(--text-color);
-  font-family: 'Prompt', sans-serif;
-  resize: vertical;
-  font-size: 14px;
-  transition: border-color 0.2s ease;
-  box-shadow: 0 1px 2px var(--shadow-color) inset;
-  line-height: 1.5;
-}
-
-textarea:focus {
+/* Input Styles */
+input:hover,
+input:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: inset var(--shadow-small);
+}
+
+/* Textarea Styles */
+textarea {
+  background-color: var(--sec-bg-color);
+  border-radius: var(--inner-radius);
+  box-shadow: inset var(--shadow-medium);
+  color: var(--pri-text-color);
+  display: flex;
+  flex: 1;
+  font-size: .8rem;
+  margin-bottom: 1rem;
+  resize: vertical;
+  transition: all 0.5s ease;
 }
 
 /* Content Boxes */
-.transcription-box,
-.response-box {
-  margin-bottom: 1rem;
+.box {
+  background-color: var(--sec-bg-color);
   border-radius: var(--outer-radius);
-  background-color: var(--dark-gray);
-  padding: 1rem;
   box-shadow: inset var(--shadow-medium);
-  transition: all 0.3s ease;
-  color: var(--white)
+  color: var(--pri-text-color);
+  text-shadow: var(--shadow-medium);
+  transition: all 0.5s ease;
 }
 
-.transcription-box:hover,
-.response-box:hover {
+.box:hover {
+  box-shadow: inset var(--shadow-small);
+  text-shadow: var(--shadow-small);
+}
+
+.box-header-row {
+  align-items: center;
+  background-color: var(--sec-bg-color);
+  border-top-left-radius: var(--outer-radius);
+  border-top-right-radius: var(--outer-radius);
+  box-shadow: inset var(--shadow-medium);
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  transition: all 0.5s ease;
+}
+
+.box-header-row:hover {
   box-shadow: inset var(--shadow-small);
 }
 
-/* .transcription-box {
-  border-left: 4px solid var(--smart-blue);
-  border-right: 4px solid var(--smart-blue);
-}
-
-.response-box {
-  border-left: 4px solid var(--creative-purple);
-  border-right: 4px solid var(--creative-purple);
-} */
-
 .box-label {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: var(--primary-color);
-  font-size: 15px;
+  color: var(--sec-text-color);
   display: flex;
-  align-items: center;
-  gap: 6px;
+  font-size: 1rem;
 }
 
 /* System Prompt Container */
 .system-prompt-container {
-  margin: 20px 0;
-  padding: 18px;
-  background-color: var(--secondary-bg);
-  border-radius: var(--radius);
-  border: 1px solid var(--border-color);
-  border-left: 4px solid var(--creative-purple);
-  box-shadow: 0 2px 8px var(--shadow-color);
-  transition: all 0.3s ease;
+  background-color: var(--sec-bg-color);
+  border-radius: var(--outer-radius);
+  box-shadow: var(--shadow-medium);
+  padding: 1rem;
+  transition: all 0.5s ease;
 }
 
 .system-prompt-container:hover {
-  box-shadow: 0 4px 12px var(--shadow-color);
+  box-shadow: var(--shadow-small);
 }
 
 /* Preset Controls */
 .preset-controls {
-  display: flex;
-  gap: 8px;
   align-items: center;
+  display: flex;
+  gap: .5rem;
 }
 
 .preset-controls button {
-  padding: 6px 10px;
-  font-size: 0.9rem;
+  font-size: .8rem;
+}
+
+.preset-buttons button {
+  padding: .1rem;
 }
 
 #save-as-preset {
-  font-size: 0.85rem;
+  font-size: .8rem;
 }
 
 #manage-presets {
-  padding: 4px 8px;
-  font-size: 1rem;
+  font-size: .8rem;
 }
 
 /* Additional animation utilities */
 .visualizer-bar {
-  width: 20px;
+  background-color: var(--sec-bg-color);
   display: static;
-  margin: 0 0;
   height: 1rem;
-  background-color: var(--black);
-  transition: height 0.1s ease-out;
+  transition: all 0.1s ease-out;
 }
-
 
 /* Audio Visualizer */
 #visualizer-container {
+  align-items: center;
+  background-color: rgba(0,0,0,0);
+  display: stretch;
+  height: 1.5rem;
+  justify-content: center;
   margin-left: 0;
   width: stretch;
-  height: 1.5rem;
-  display: stretch;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0,0,0,0);
 }

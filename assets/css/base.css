@@ -1,28 +1,24 @@
 /* Base Typography and Element Styles */
 body {
-  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif; 
-  max-width: 650px; 
-  margin: 1rem auto; 
-  line-height: 1rem; 
   background-color: var(--pri-bg-color);
-  color: var(--text-color);
-  transition: all 0.3s ease;
-  font-size: .8rem;
-  scrollbar-color: var(--scrollbar-thumb) var(--secondary-bg);
+  color: var(--pri-text-color);
+  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif; 
+  margin: 1rem auto; 
+  max-width: 650px; 
+  scrollbar-color: var(--pri-bg-color) var(--sec-bg-color);
   scrollbar-width: thin;
-  text-shadow: var(--shadow-small)
+  /* text-shadow: var(--shadow-small); */
+  transition: all 0.5s ease;
 }
 
 pre { 
-  background: var(--sec-bg-color);
-  color: var(--black);
-  padding: 1rem; 
-  border-radius: var(--inner-radius); 
-  white-space: pre-wrap; 
-  margin-bottom: 0rem;
-  transition: all 0.3s ease;
+  color: var(--sec-text-color);
+  font-size: 1rem;
   line-height: 1rem;
-  box-shadow: var(--shadow-medium);
+  margin-block-start: 0rem;
+  padding: 1rem; 
+  transition: all 0.5s ease;
+  white-space: pre-wrap; 
 }
 
 div h2 {
@@ -36,5 +32,4 @@ div h2 {
 
 .info-text {
   font-size: .8rem;
-  opacity: 0.8;
 }

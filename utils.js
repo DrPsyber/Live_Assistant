@@ -11,6 +11,7 @@ class AudioProcessor {
     constructor() {
         this.audioContext = null;
         this.analyser = null;
+        this.sourceNode = null; // Added: To keep track of the media stream source node
         this.dataArray = null;
         this.visualizerBars = [];
         this.visualizerInitialized = false;
@@ -96,15 +97,17 @@ class AudioProcessor {
             throw new Error('Audio context is not initialized');
         }
 
-        // Clear existing bars regardless of initialization state
-        containerElement.innerHTML = '';
-        this.visualizerBars = [];
+        // Stop and clear any existing visualizer for this instance
+        this.stopVisualizer(); 
+        
+        containerElement.innerHTML = ''; // Clear the target container for the new visualizer
+        this.visualizerBars = []; // Reset the bars array for the new visualizer
         
         // Create a more visible container that works with both light and dark modes
-        containerElement.style.backgroundColor = 'rgba(128, 128, 128, 0.15)';
-        containerElement.style.borderRadius = '4px';
-        containerElement.style.padding = '5px';
-        containerElement.style.minWidth = '120px';
+        // containerElement.style.backgroundColor = 'rgba(128, 128, 128, 0.15)';
+        // containerElement.style.borderRadius = '4px';
+        // containerElement.style.padding = '5px';
+        // containerElement.style.minWidth = '120px';
         
         // Create new bars (fewer bars for better visibility)
         for (let i = 0; i < 12; i++) {
@@ -113,10 +116,9 @@ class AudioProcessor {
             // Skip CSS classes and set all styles directly
             Object.assign(bar.style, {
                 display: 'inline-block',
-                width: '5px',
-                height: '5px',
-                margin: '0 2px',
-                backgroundColor: '#0EA27F',
+                width: '10px',
+                height: '1px',
+                margin: '0 1px',
                 transition: 'height 0.1s ease-out'
             });
             
@@ -128,14 +130,16 @@ class AudioProcessor {
         this.visualizerInitialized = true;
 
         // Set up audio analyzer
-        const source = this.audioContext.createMediaStreamSource(stream);
+        // const source = this.audioContext.createMediaStreamSource(stream); // Old: local variable
+        this.sourceNode = this.audioContext.createMediaStreamSource(stream); // New: use instance property
         this.analyser = this.audioContext.createAnalyser();
         this.analyser.fftSize = 256;
         
         const bufferLength = this.analyser.frequencyBinCount;
         this.dataArray = new Uint8Array(bufferLength);
         
-        source.connect(this.analyser);
+        // source.connect(this.analyser); // Old: local variable
+        this.sourceNode.connect(this.analyser); // New: use instance property
         
         // Start visualization
         this.updateVisualizer();
@@ -169,7 +173,7 @@ class AudioProcessor {
                 height: height + 'px',
                 backgroundColor: '#0EA27F', // Hardcoded color instead of CSS variable
                 display: 'inline-block',
-                width: '3px',
+                width: '10px',
                 margin: '0 1px',
                 transition: 'height 0.1s ease-out'
             });
@@ -182,22 +186,37 @@ class AudioProcessor {
     }
 
     stopVisualizer() {
-        this.analyser = null;
-        this.dataArray = null;
+        // Disconnect the source node from the audio graph to free up the media stream
+        if (this.sourceNode) {
+            this.sourceNode.disconnect();
+            this.sourceNode = null;
+        }
+
+        // Disconnect and nullify the analyser node
+        if (this.analyser) {
+            this.analyser.disconnect();
+            this.analyser = null;
+        }
         
-        // Reset visualizer bars
+        this.dataArray = null; // Clear the data array
+
+        // Reset any existing visualizer bars to their inactive state
+        // This operates on bars from the visualizer instance that is being stopped.
         for (const bar of this.visualizerBars) {
             Object.assign(bar.style, {
-                height: '5px',
-                backgroundColor: 'rgba(14, 162, 127, 0.3)', // Dimmer when inactive
-                display: 'inline-block', // Ensure they're still visible
-                width: '5px',
-                margin: '0 2px',
+                height: '1px',
+                backgroundColor: 'rgba(14, 162, 127, 0.3)', // Style for inactive bars
+                display: 'inline-block',
+                width: '10px',
+                margin: '0 1px',
                 transition: 'height 0.1s ease-out'
             });
         }
         
-        console.log('Visualizer stopped');
+        this.visualizerBars = []; // Clear the array of bar references
+        this.visualizerInitialized = false; // Mark visualizer as not initialized
+        
+        console.log('Visualizer stopped and cleaned up');
     }
 
     // Check if audio buffer contains actual speech (not just silence)

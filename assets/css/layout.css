@@ -1,18 +1,27 @@
 /* Layout and Container Styles */
 .logo-container {
-  text-align: center;
   margin-bottom: 0;
+  text-align: center;
 }
 
 .logo {
-  max-width: 280px;
   height: auto;
+  max-width: 280px;
+}
+
+.flex-row {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: right;
+  margin-bottom: 1rem;
+  width: 100%;
 }
 
 .header-controls {
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
 }
 
 .controls {
@@ -22,8 +31,8 @@
 
 /* App Description */
 .app-description {
+  color: var(--pri-text-color);
   font-size: .8rem;
-  color: var(--text-color);
 }
 
 /* Options */
@@ -33,16 +42,16 @@
 }
 
 .options-row {
-  width: fit-content;
-  display: flex;
   align-items: center;
+  background-color: var(--sec-bg-color);
+  border-radius: calc(var(--outer-radius) * 3);
+  box-shadow: inset var(--shadow-medium);
+  display: flex;
   gap: 1rem;
   margin-bottom: 1rem;
   padding: 1rem;
-  border-radius: calc(var(--outer-radius) * 3);
-  background-color: var(--dark-gray);
-  box-shadow: inset var(--shadow-medium);
-  transition: width 0.5s ease;
+  transition: all 0.5s ease;
+  width: fit-content;
 }
 
 .options-row::before {
@@ -50,31 +59,23 @@
 }
 
 .options-row::after {
-  transition: width 0.5s ease;
+  transition: all 0.5s ease;
 }
 
 .recording-controls {
-  display: flex;
   align-items: center;
-}
-
-/* Model Selector */
-.model-selector {
   display: flex;
-  align-items: center;
-  gap: .8rem;
 }
 
 /* Response Container */
 .response-container {
   width: 100%;
-  margin: 1rem;
 }
 
 .response-header {
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 1rem;
 }
 
@@ -83,9 +84,9 @@
 }
 
 .prompt-header {
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 1rem;
 }
 
@@ -99,9 +100,9 @@
 }
 
 .history-header {
+  align-items: center;
   display: flex;
   justify-content: space-between;
-  align-items: center;
   margin-bottom: 1rem;
 }
 
@@ -110,17 +111,16 @@
 }
 
 .history-item {
-  padding: 1rem;
-  background-color: var(--secondary-bg);
+  background-color: var(--pri-bg-color);
   border-radius: var(--inner-radius);
-  border: 1px solid var(--border-color);
   margin-bottom: 1rem;
+  padding: 1rem;
 }
 
 .history-item-objection {
-  font-size: 0.85rem;
-  opacity: 0.8;
+  font-size: .8rem;
   margin-bottom: .8rem;
+  opacity: .8;
 }
 
 .history-item-response {
@@ -128,12 +128,12 @@
 }
 
 .history-item-meta {
+  color: var(--pri-text-color);
   display: flex;
+  font-size: .8rem;
   justify-content: space-between;
   margin-top: 1rem;
-  font-size: 0.8rem;
-  color: var(--text-color);
-  opacity: 0.7;
+  opacity: .8;
 }
 
 /* Footer */
@@ -141,14 +141,13 @@
   margin-top: 2.5rem;
   padding: 1rem 0;
   text-align: center;
-  border-top: 1px solid var(--border-color);
 }
 
 .footer a {
-  color: var(--primary-color);
-  text-decoration: none;
+  color: var(--pri-text-color);
   font-weight: 500;
-  transition: color 0.2s ease;
+  text-decoration: none;
+  transition: all 0.5s ease;
 }
 
 .footer a:hover {
