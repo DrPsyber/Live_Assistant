@@ -1,737 +1,1521 @@
 <!doctype html>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Transcribe n Vibe</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/variables.css">
-<link rel="stylesheet" href="assets/css/base.css">
-<link rel="stylesheet" href="assets/css/themes.css">
-<link rel="stylesheet" href="assets/css/layout.css">
-<link rel="stylesheet" href="assets/css/components.css">
-<link rel="stylesheet" href="assets/css/dialogs.css">
-<link rel="stylesheet" href="assets/css/animations.css">
 
-<div class="logo-container">
-  <img src="Logo black.png" alt="AI Advantage Logo" class="logo">
-</div>
-<div class="header-controls">
-  <h2>Transcribe n Vibe</h2>
-  <div class="controls">
-    <button id="theme-toggle" title="Toggle dark mode">🌓</button>
-    <button id="settings-btn" title="Settings">⚙️</button>
-  </div>
-</div>
-<div class="app-description">
-  <p>Record objections and get AI-powered comeback responses in real-time</p>
-</div>
+<!-- Head -->
 
-<div class="options-row">
-  <div class="recording-controls">
-    <button id="toggle" class="record-btn">
-      <span id="status-dot"></span>🎤 Start Listening
-    </button>
-    <div id="visualizer-container"></div>
-  </div>
-</div>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Assistant</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/variables.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/themes.css">
+  <link rel="stylesheet" href="assets/css/layout.css">
+  <link rel="stylesheet" href="assets/css/components.css">
+  <link rel="stylesheet" href="assets/css/dialogs.css">
+  <link rel="stylesheet" href="assets/css/animations.css">
+</head>
 
-<div class="transcription-box">
-  <p class="box-label">🎙️ Transcription:</p>
-  <pre id="lastObjection">Your speech will appear here...</pre>
-</div>
-
-<div class="system-prompt-container">
-  <div class="prompt-header">
-    <label for="system-prompt">Prompt:</label>
-    <div class="preset-controls">
-      <select id="preset-select">
-        <option value="">-- Choose Preset --</option>
-        <option value="executive-reframer">Executive Reframer</option>
-        <option value="negotiation">Negotiation Expert</option>
-      </select>
-      <button id="save-as-preset" title="Save as new preset">Save As+</button>
-      <button id="manage-presets" title="Manage presets">⋮</button>
+<body>
+  <!-- Header -->
+  <div class="header-controls">
+    <h1>Live Assistant</h1>
+    <div class="controls">
+      <button id="theme-toggle" title="Toggle dark mode">🌓</button>
+      <button id="settings-btn" title="Settings">⚙️</button>
     </div>
   </div>
-  <textarea id="system-prompt" rows="3">You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.</textarea>
-  <button id="save-prompt">Save Prompt</button>
-</div>
 
-<div class="response-container">
-  <div class="response-header">
-    <p class="box-label">💡 AI Response:</p>
-    <div class="model-selector">
-      <label for="model-select">Model:</label>
-      <select id="model-select">
-        <option value="gpt-4o">GPT-4o</option>
-        <option value="gpt-4o-mini">GPT-4o Mini</option>
-        <option value="o1-preview">O1 Preview</option>
-        <option value="o1-mini">O1 Mini</option>
-      </select>
+  <!-- App Description -->
+  <div class="app-description">
+    <p>Record objections and get AI-powered comeback responses in real-time</p>
+  </div>
+
+  <!-- Recording Controls -->
+  <div class="options-container">
+    <div class="options-row">
+      <div class="recording-controls">
+        <div id="visualizer-container-left" style="display: none;"></div>
+        <button id="toggle" class="record-btn">🎤 Start Listening</button>
+        <div id="visualizer-container-right" style="display: none;"></div>
+      </div>
     </div>
   </div>
-  <div class="response-box">
-    <pre id="reply">Responses will appear here...</pre>
-  </div>
-</div>
 
-<!-- Preset Management Dialog -->
-<div id="preset-dialog" class="dialog hidden">
-  <div class="dialog-content">
-    <h3>Manage Prompt Presets</h3>
-    <div id="preset-list" class="preset-list">
-      <!-- Presets will be loaded here -->
+  <!-- Transcription Box -->
+  <div id="transcription-box" class="box">
+    <div id="transcription-header-row" class="box-header-row">
+      <div class="box-label">🎙️ Transcription:</div>
     </div>
-    <div class="dialog-buttons">
-      <button id="preset-dialog-close">Close</button>
+    <pre id="lastObjection" class="box-text">Your speech will appear here...</pre>
+  </div>
+
+  <!-- Response Box -->
+  <div id="response-box" class="box">
+    <div id="response-header-row" class="box-header-row">
+      <div class="box-label">💡 AI Response:</div>
+    </div>
+    <pre id="reply" class="box-text">Responses will appear here...</pre>
+  </div>
+
+  <!-- Response History Dialog -->
+  <div id="history-box" class="box hidden">
+    <div id="history-header-row" class="box-header-row">
+      <div class="box-label">📜 Response History:</div>
+      <div id="history-button-container" class="button-container"><button id="clear-history" class="clear-btn"
+          title="Clear all history">❌</button></div>
+    </div>
+    <pre id="history-list" class="box-text">Your response history will appear here...</pre>
+  </div>
+
+  <!-- Preset Management Dialog -->
+  <div id="preset-dialog" class="dialog hidden">
+    <div class="dialog-content">
+      <h2>Manage Prompt Presets</h2>
+      <div id="preset-list" class="preset-list">
+        <!-- Presets will be loaded here -->
+      </div>
+      <div class="dialog-buttons">
+        <button id="preset-dialog-close">↩️</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- New Preset Dialog -->
-<div id="new-preset-dialog" class="dialog hidden">
-  <div class="dialog-content">
-    <h3>Save as New Preset</h3>
-    <label for="new-preset-name">Preset Name:</label>
-    <input type="text" id="new-preset-name" placeholder="Enter a name for this preset">
-    <div class="dialog-buttons">
-      <button id="new-preset-cancel">Cancel</button>
-      <button id="new-preset-save">Save</button>
+  <!-- New Preset Dialog -->
+  <div id="new-preset-dialog" class="dialog hidden">
+    <div class="dialog-content">
+      <h2>Save as New Preset</h2>
+      <label for="new-preset-name">Preset Name:</label>
+      <input type="text" id="new-preset-name" placeholder="Enter a name for this preset">
+      <div class="dialog-buttons">
+        <button id="new-preset-cancel">↩️</button>
+        <button id="new-preset-save">✅</button>
+      </div>
+      <p id="new-preset-status"></p>
     </div>
-    <p id="new-preset-status"></p>
   </div>
-</div>
 
-<div class="history-container">
-  <div class="history-header">
-    <h3>Response History</h3>
-    <button id="clear-history" class="clear-btn" title="Clear all history">Clear History</button>
-  </div>
-  <div id="history-list" class="history-list"></div>
-</div>
 
-<!-- API Key Dialog -->
-<div id="api-key-dialog" class="dialog hidden">
-  <div class="dialog-content">
-    <h3>GitHub Token</h3>
-    <p class="info-text">Your GitHub token is stored locally in your browser.</p>
-    
-    <div class="api-key-section">
-      <label for="github-token-input">GitHub Token:</label>
-      <input type="password" id="github-token-input" placeholder="ghp_..." />
+
+  <!-- Settings Dialog -->
+  <div id="settings-dialog" class="dialog hidden">
+    <div class="dialog-content">
+      <h2>Settings</h2>
+      <p class="info-text">Your settings are stored locally in your browser.</p>
+
+      <!-- GitHub Token Section -->
+      <div id="api-key-section" class="input-section">
+        <div id="label-container" class="flex-row">
+          <label for="github-token-textarea">GitHub Token:</label>
+          <div class="flex-spacer" style="flex:1;"></div>
+          <textarea name="github-token" id="github-token-textarea" placeholder="ghp_************************************"></textarea>
+        </div>
+      </div>
+
+      <!-- Model Selection Section -->
+      <div class="model-selector">
+        <label for="model-select">Model:</label>
+        <select id="model-select">
+          <option value="">Loading models...</option>
+        </select>
+      </div>
+
+      <!-- System Prompt Section -->
+      <div class="api-key-section">
+        <div id="system-prompt-header-row" class="flex-row">
+          <label for="system-prompt-dialog">System Prompt:</label>
+          <div class="flex-spacer" style="flex:1;"></div>
+          <div class="preset-controls">
+            <select id="preset-select-dialog">
+              <option value="">-- Choose Preset --</option>
+              <option value="executive-reframer">Executive Reframer</option>
+              <option value="negotiation">Negotiation Expert</option>
+            </select>
+          </div>
+          <div class="preset-buttons">
+            <button id="save-as-preset-dialog" title="Save as new preset">💾</button>
+            <button id="manage-presets-dialog" title="Manage presets">🍔</button>
+          </div>
+        </div>
+      </div>
+      <div id="sys-prompt-row" class="flex-row">
+        <textarea id="system-prompt-dialog" rows="6" placeholder="Enter your system prompt here...">You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.</textarea>
+      </div>
+
+      <!-- Upload File(s) Section -->
+      <div id="file-upload-section" class="api-key-section">
+        <div id="file-upload-container" class="flex-row">
+          <label for="file-upload-input">Upload File(s):</label>
+          <div class="flex-spacer" style="flex:1;"></div>
+          <input type="file" id="file-upload-input" multiple
+            accept=".txt,.md,.json,.csv,.log,.js,.ts,.html,.css,.py,.java,.cpp,.c,.h" />
+          <button id="clear-btn" title="Clear all uploaded files">❌</button>
+        </div>
+        <div id="uploaded-files-list" class="uploaded-files-list"></div>
+      </div>
+      <div>
+        <div class="info-text">Files will be used as context for your prompts. Supported formats: text, markdown, code
+          files, etc.</div>
+      </div>
+
+      <!-- Dialog Buttons -->
+      <div id="dialog-button-row" class="flex-row">
+        <div id="api-key-status"></div>
+        <div class="flex-spacer" style="flex:1;"></div>
+        <button id="api-key-save">✅</button>
+        <button id="api-key-cancel">↩️</button>
+      </div>
+
     </div>
-    
-    <div class="dialog-buttons">
-      <button id="api-key-save">Save</button>
-      <button id="api-key-cancel">Cancel</button>
-    </div>
-    <p id="api-key-status"></p>
   </div>
-</div>
-
+</body>
 <script>
-// Initialize Speech Recognition
-const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
-const r = new Speech();
-r.continuous = true;
-r.interimResults = false;
-let on = false;
-let lastTranscript = '';
+console.log('[DEBUG] index.html script block loaded');
+  // Initialize Speech Recognition
+  const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const r = new Speech();
+  r.continuous = true;
+  r.interimResults = false;
+  let on = false;
+  let lastTranscript = '';
 
-// Initialize app state
-const appState = {
-  responseHistory: [],
-  systemPrompt: 'You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.',
-  selectedModel: 'gpt-4o',
-  presets: {
-    'executive-reframer': {
-      name: 'Executive Reframer',
-      prompt: 'You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.'
-    },
-    'negotiation': {
-      name: 'Negotiation Expert',
-      prompt: 'You are a skilled negotiation expert. Generate concise, tactical responses that redirect objections while building value. Focus on finding common ground, addressing concerns empathetically, and guiding toward agreement. Use data and logical framing to strengthen your position. Keep responses under 15 words and maintain a persuasive yet collaborative tone.'
+  // App state and visualizer instances
+  let audioProcessorLeft = null;
+  let audioProcessorRight = null;
+  let currentStream = null; // To hold the MediaStream
+
+  const appState = {
+    responseHistory: [],
+    systemPrompt: 'You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.',
+    selectedModel: 'gpt-4.1',
+    uploadedFiles: [],
+    presets: {
+      'executive-reframer': {
+        name: 'Executive Reframer',
+        prompt: 'You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.'
+      },
+      'negotiation': {
+        name: 'Negotiation Expert',
+        prompt: 'You are a skilled negotiation expert. Generate concise, tactical responses that redirect objections while building value. Focus on finding common ground, addressing concerns empathetically, and guiding toward agreement. Use data and logical framing to strengthen your position. Keep responses under 15 words and maintain a persuasive yet collaborative tone.'
+      }
     }
-  }
-};
+  };
 
-// Initialize theme and settings
-let audioProcessor = null;
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize audio processor if available
-  if (typeof AudioProcessor === 'function') {
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('[DEBUG] DOMContentLoaded handler triggered');
+    // Initialize UI state manager with error handling
     try {
-      audioProcessor = new AudioProcessor();
+      window.uiStateManager = new UIStateManager();
+      console.log('UIStateManager initialized successfully');
     } catch (e) {
-      console.error('Error initializing AudioProcessor:', e);
+      console.error('Error initializing UIStateManager:', e);
     }
-  }
-  
-  // Initialize UI state manager with error handling
-  try {
-    window.uiStateManager = new UIStateManager();
-    console.log('UIStateManager initialized successfully');
-  } catch (e) {
-    console.error('Error initializing UIStateManager:', e);
-  }
-  
-  // Load saved state
-  loadSavedState();
-  
-  // No API key checks needed up front
-  
-  // Setup dark mode
-  const savedTheme = localStorage.getItem('theme_mode');
-  if (savedTheme === 'dark') {
-    document.body.classList.add('dark-mode');
-    
-    // Set the toggle icon text
-    const themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-      themeToggle.textContent = '🌓';
-    }
-  }
-  
-  // Set up event listeners with error handling
-  const setupEventListeners = () => {
-    try {
-      // Theme toggle
+
+    // Load saved state
+    loadSavedState();
+
+    // Fetch and populate models from GitHub AI catalog
+    console.log('[DEBUG] About to call fetchAndPopulateModels');
+    console.log('[DEBUG] typeof fetchAndPopulateModels:', typeof fetchAndPopulateModels);
+    fetchAndPopulateModels().catch(e => {
+      console.error('[DEBUG] fetchAndPopulateModels top-level error:', e);
+    });
+
+    // No API key checks needed up front
+
+    // Setup dark mode
+    const savedTheme = localStorage.getItem('theme_mode');
+    if (savedTheme === 'dark') {
+      document.body.classList.add('dark-mode');
+
+      // Set the toggle icon text
       const themeToggle = document.getElementById('theme-toggle');
       if (themeToggle) {
-        themeToggle.addEventListener('click', toggleTheme);
-        console.log("Theme toggle button listener added");
+        themeToggle.textContent = '🌓';
       }
-      
-      // Settings button
-      const settingsBtn = document.getElementById('settings-btn');
-      if (settingsBtn) {
-        settingsBtn.addEventListener('click', showApiKeyDialog);
-        console.log("Settings button listener added");
-      }
-      
-      // API key dialog buttons
-      const apiKeySave = document.getElementById('api-key-save');
-      if (apiKeySave) {
-        apiKeySave.addEventListener('click', saveApiKey);
-      }
-      
-      const apiKeyCancel = document.getElementById('api-key-cancel');
-      if (apiKeyCancel) {
-        apiKeyCancel.addEventListener('click', hideApiKeyDialog);
-      }
-      
-      // Recording toggle
-      const toggleBtn = document.getElementById('toggle');
-      if (toggleBtn) {
-        toggleBtn.addEventListener('click', toggleRecording);
-        console.log("Toggle recording button listener added");
-      }
-      
-      // Save prompt button
-      const savePromptBtn = document.getElementById('save-prompt');
-      if (savePromptBtn) {
-        savePromptBtn.addEventListener('click', saveSystemPrompt);
-      }
-      
-      // Model select
-      const modelSelect = document.getElementById('model-select');
-      if (modelSelect) {
-        modelSelect.addEventListener('change', updateSelectedModel);
-      }
-    } catch (error) {
-      console.error("Error setting up event listeners:", error);
     }
-  };
-  
-  // Set up event listeners immediately and also with a small delay to ensure DOM is ready
-  setupEventListeners();
-  setTimeout(setupEventListeners, 500);
-  
-  // Preset management listeners
-  try {
-    const presetSelect = document.getElementById('preset-select');
-    if (presetSelect) {
-      presetSelect.addEventListener('change', loadSelectedPreset);
-    }
-    
-    const saveAsPreset = document.getElementById('save-as-preset');
-    if (saveAsPreset) {
-      saveAsPreset.addEventListener('click', showNewPresetDialog);
-    }
-    
-    const managePresets = document.getElementById('manage-presets');
-    if (managePresets) {
-      managePresets.addEventListener('click', showPresetManagerDialog);
-    }
-    
-    const presetDialogClose = document.getElementById('preset-dialog-close');
-    if (presetDialogClose) {
-      presetDialogClose.addEventListener('click', hidePresetManagerDialog);
-    }
-    
-    const newPresetCancel = document.getElementById('new-preset-cancel');
-    if (newPresetCancel) {
-      newPresetCancel.addEventListener('click', hideNewPresetDialog);
-    }
-    
-    const newPresetSave = document.getElementById('new-preset-save');
-    if (newPresetSave) {
-      newPresetSave.addEventListener('click', saveNewPreset);
-    }
-    
-    // History management
-    const clearHistory = document.getElementById('clear-history');
-    if (clearHistory) {
-      clearHistory.addEventListener('click', clearResponseHistory);
-    }
-  } catch (error) {
-    console.error("Error setting up preset/history listeners:", error);
-  }
-  
-  // Close dialogs with Escape key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+
+    // Set up event listeners with error handling
+    const setupEventListeners = () => {
       try {
-        const apiKeyDialog = document.getElementById('api-key-dialog');
-        const presetDialog = document.getElementById('preset-dialog');
-        const newPresetDialog = document.getElementById('new-preset-dialog');
-        
-        if (apiKeyDialog && !apiKeyDialog.classList.contains('hidden')) {
-          hideApiKeyDialog();
-        } else if (presetDialog && !presetDialog.classList.contains('hidden')) {
-          hidePresetManagerDialog();
-        } else if (newPresetDialog && !newPresetDialog.classList.contains('hidden')) {
-          hideNewPresetDialog();
+        // Theme toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+          themeToggle.addEventListener('click', toggleTheme);
+          console.log("Theme toggle button listener added");
+        }
+
+        // Settings button
+        const settingsBtn = document.getElementById('settings-btn');
+        if (settingsBtn) {
+          settingsBtn.addEventListener('click', showApiKeyDialog);
+          console.log("Settings button listener added");
+        }
+
+        // API key dialog buttons
+        const apiKeySave = document.getElementById('api-key-save');
+        if (apiKeySave) {
+          apiKeySave.addEventListener('click', saveApiKey);
+        }
+
+        const apiKeyCancel = document.getElementById('api-key-cancel');
+        if (apiKeyCancel) {
+          apiKeyCancel.addEventListener('click', hideApiKeyDialog);
+        }
+
+        // Recording toggle
+        const toggleBtn = document.getElementById('toggle');
+        if (toggleBtn) {
+          // Remove existing listener before adding, to be safe, though primary duplication is fixed elsewhere
+          toggleBtn.removeEventListener('click', toggleRecording); 
+          toggleBtn.addEventListener('click', toggleRecording);
+          console.log("Toggle recording button listener added/updated.");
+        }
+
+        // Save prompt button
+        const savePromptBtn = document.getElementById('save-prompt');
+        if (savePromptBtn) {
+          savePromptBtn.addEventListener('click', saveSystemPrompt);
+        }
+
+        // Model select
+        const modelSelect = document.getElementById('model-select');
+        if (modelSelect) {
+          modelSelect.addEventListener('change', updateSelectedModel);
         }
       } catch (error) {
-        console.error("Error handling Escape key:", error);
+        console.error("Error setting up event listeners:", error);
+      }
+    };
+
+    // Set up event listeners immediately
+    setupEventListeners();
+
+    // Preset management listeners
+    try {
+      const presetSelect = document.getElementById('preset-select');
+      if (presetSelect) {
+        presetSelect.addEventListener('change', loadSelectedPreset);
+      }
+
+      const saveAsPreset = document.getElementById('save-as-preset');
+      if (saveAsPreset) {
+        saveAsPreset.addEventListener('click', showNewPresetDialog);
+      }
+
+      const managePresets = document.getElementById('manage-presets');
+      if (managePresets) {
+        managePresets.addEventListener('click', showPresetManagerDialog);
+      }
+
+      const presetDialogClose = document.getElementById('preset-dialog-close');
+      if (presetDialogClose) {
+        presetDialogClose.addEventListener('click', hidePresetManagerDialog);
+      }
+
+      const newPresetCancel = document.getElementById('new-preset-cancel');
+      if (newPresetCancel) {
+        newPresetCancel.addEventListener('click', hideNewPresetDialog);
+      }
+
+      const newPresetSave = document.getElementById('new-preset-save');
+      if (newPresetSave) {
+        newPresetSave.addEventListener('click', saveNewPreset);
+      }
+
+      // Dialog preset management listeners
+      const presetSelectDialog = document.getElementById('preset-select-dialog');
+      if (presetSelectDialog) {
+        presetSelectDialog.addEventListener('change', loadSelectedPreset);
+      }
+
+      const saveAsPresetDialog = document.getElementById('save-as-preset-dialog');
+      if (saveAsPresetDialog) {
+        saveAsPresetDialog.addEventListener('click', showNewPresetDialog);
+      }
+
+      const managePresetsDialog = document.getElementById('manage-presets-dialog');
+      if (managePresetsDialog) {
+        managePresetsDialog.addEventListener('click', showPresetManagerDialog);
+      }
+
+      // File upload listeners
+      const fileUploadInput = document.getElementById('file-upload-input');
+      if (fileUploadInput) {
+        fileUploadInput.addEventListener('change', handleFileUpload);
+      }
+
+      const clearFilesBtn = document.getElementById('clear-files-btn');
+      if (clearFilesBtn) {
+        clearFilesBtn.addEventListener('click', clearAllFiles);
+      }
+
+      // History management
+      const clearHistory = document.getElementById('clear-history');
+      if (clearHistory) {
+        clearHistory.addEventListener('click', clearResponseHistory);
+      }
+    } catch (error) {
+      console.error("Error setting up preset/history listeners:", error);
+    }
+
+    // Close dialogs with Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        try {
+          const apiKeyDialog = document.getElementById('settings-dialog');
+          const presetDialog = document.getElementById('preset-dialog');
+          const newPresetDialog = document.getElementById('new-preset-dialog');
+
+          if (apiKeyDialog && !apiKeyDialog.classList.contains('hidden')) {
+            hideApiKeyDialog();
+          } else if (presetDialog && !presetDialog.classList.contains('hidden')) {
+            hidePresetManagerDialog();
+          } else if (newPresetDialog && !newPresetDialog.classList.contains('hidden')) {
+            hideNewPresetDialog();
+          }
+        } catch (error) {
+          console.error("Error handling Escape key:", error);
+        }
+      }
+    });
+
+    // Render initial UI
+    renderHistoryList();
+    renderPresetList();
+  });
+
+  // Load app state from localStorage
+  function loadSavedState() {
+    // Load system prompt
+    const savedPrompt = localStorage.getItem('system_prompt');
+    if (savedPrompt) {
+      appState.systemPrompt = savedPrompt;
+
+      // Update dialog version if it exists
+      const dialogPrompt = document.getElementById('system-prompt-dialog');
+      if (dialogPrompt) {
+        dialogPrompt.value = savedPrompt;
       }
     }
-  });
-  
-  // Render initial UI
-  renderHistoryList();
-  renderPresetList();
-});
 
-// Load app state from localStorage
-function loadSavedState() {
-  // Load system prompt
-  const savedPrompt = localStorage.getItem('system_prompt');
-  if (savedPrompt) {
-    appState.systemPrompt = savedPrompt;
-    document.getElementById('system-prompt').value = savedPrompt;
-  }
-  
-  // Load selected model
-  const savedModel = localStorage.getItem('selected_model');
-  if (savedModel) {
-    appState.selectedModel = savedModel;
-    document.getElementById('model-select').value = savedModel;
-  }
-  
-  // Load GitHub token
-  const githubToken = localStorage.getItem('github_token') || '';
-  
-  // Load response history
-  const savedHistory = localStorage.getItem('response_history');
-  if (savedHistory) {
-    try {
-      appState.responseHistory = JSON.parse(savedHistory);
-    } catch (e) {
-      console.error('Error parsing saved history:', e);
-      appState.responseHistory = [];
+    // Load selected model
+    const savedModel = localStorage.getItem('selected_model');
+    if (savedModel) {
+      appState.selectedModel = savedModel;
     }
-  }
-  
-  // Load custom presets
-  const savedPresets = localStorage.getItem('custom_presets');
-  if (savedPresets) {
-    try {
-      const customPresets = JSON.parse(savedPresets);
-      // Merge custom presets with default presets
-      appState.presets = { ...appState.presets, ...customPresets };
-      // Update the preset dropdown options
-      setTimeout(updatePresetOptions, 0);
-    } catch (e) {
-      console.error('Error parsing saved presets:', e);
-    }
-  } else {
-    // Make sure we have all default presets in the dropdown
-    setTimeout(updatePresetOptions, 0);
-  }
-}
 
-// Preset management functions
-function renderPresetList() {
-  const presetList = document.getElementById('preset-list');
-  presetList.innerHTML = '';
-  
-  // Create preset items
-  Object.entries(appState.presets).forEach(([id, preset]) => {
-    const presetItem = document.createElement('div');
-    presetItem.className = 'preset-item';
-    
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'preset-name';
-    nameSpan.textContent = preset.name;
-    
-    const actions = document.createElement('div');
-    actions.className = 'preset-actions';
-    
-    const loadBtn = document.createElement('button');
-    loadBtn.textContent = 'Load';
-    loadBtn.addEventListener('click', () => {
-      loadPreset(id);
-      hidePresetManagerDialog();
-    });
-    
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Delete';
-    
-    // Don't allow deleting the default presets
-    if (['executive-reframer', 'negotiation'].includes(id)) {
-      deleteBtn.disabled = true;
-      deleteBtn.title = 'Cannot delete default presets';
+    // Load GitHub token
+    const githubToken = localStorage.getItem('github_token') || '';
+
+    // Load response history
+    const savedHistory = localStorage.getItem('response_history');
+    if (savedHistory) {
+      try {
+        appState.responseHistory = JSON.parse(savedHistory);
+      } catch (e) {
+        console.error('Error parsing saved history:', e);
+        appState.responseHistory = [];
+      }
+    }
+
+    // Load uploaded files
+    const savedFiles = localStorage.getItem('uploaded_files');
+    if (savedFiles) {
+      try {
+        appState.uploadedFiles = JSON.parse(savedFiles);
+      } catch (e) {
+        console.error('Error parsing saved files:', e);
+        appState.uploadedFiles = [];
+      }
+    }
+
+    // Load custom presets
+    const savedPresets = localStorage.getItem('custom_presets');
+    if (savedPresets) {
+      try {
+        const customPresets = JSON.parse(savedPresets);
+        // Merge custom presets with default presets
+        appState.presets = { ...appState.presets, ...customPresets };
+        // Update the preset dropdown options
+        setTimeout(() => {
+          updatePresetOptions();
+          updatePresetOptionsDialog();
+        }, 0);
+      } catch (e) {
+        console.error('Error parsing saved presets:', e);
+      }
     } else {
-      deleteBtn.addEventListener('click', () => deletePreset(id));
+      // Make sure we have all default presets in the dropdown
+      setTimeout(() => {
+        updatePresetOptions();
+        updatePresetOptionsDialog();
+      }, 0);
+    }
+  }
+
+  async function fetchAndPopulateModels() {
+  let models = null;
+  const fetchMethods = [
+    async () => {
+      console.log('Trying direct fetch...');
+      const response = await fetch('https://models.github.ai/catalog/models');
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    },
+    async () => {
+      console.log('Trying CORS proxy...');
+      const apiUrl = 'https://models.github.ai/catalog/models';
+      const corsProxy = 'https://api.allorigins.win/get?url=';
+      const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const proxyData = await response.json();
+      return JSON.parse(proxyData.contents);
+    },
+    async () => {
+      console.log('Trying alternative CORS proxy...');
+      const apiUrl = 'https://models.github.ai/catalog/models';
+      const corsProxy = 'https://corsproxy.io/?';
+      const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    }
+  ];
+
+  for (const fetchMethod of fetchMethods) {
+    try {
+      models = await fetchMethod();
+      if (models && Array.isArray(models)) {
+        console.log(`Successfully fetched ${models.length} models from GitHub AI catalog`);
+        break;
+      }
+    } catch (error) {
+      console.warn('Fetch method failed:', error.message);
+      continue;
+    }
+  }
+
+  if (!models) {
+    console.error('All fetch methods failed, using fallback models');
+    const modelSelect = document.getElementById('model-select');
+    if (modelSelect) {
+      console.log('[DEBUG] Entered fallback model rendering block (final)');
+      modelSelect.innerHTML = `
+      <option value="gpt-4o">OpenAI: GPT-4o</option>
+      <option value="gpt-4o-mini">OpenAI: GPT-4o Mini</option>
+      <option value="o1-preview">OpenAI: O1 Preview</option>
+      <option value="o1-mini">OpenAI: O1 Mini</option>
+      <option value="gpt-4">OpenAI: GPT-4</option>
+      <option value="gpt-3.5-turbo">OpenAI: GPT-3.5 Turbo</option>
+      <option value="claude-3-5-sonnet">Anthropic: Claude 3.5 Sonnet</option>
+      <option value="claude-3-haiku">Anthropic: Claude 3 Haiku</option>
+      <option value="llama-3.1-70b-instruct">Meta: Llama 3.1 70B</option>
+      <option value="llama-3.1-8b-instruct">Meta: Llama 3.1 8B</option>
+      <option value="mistral-large">Mistral: Large</option>
+      <option value="phi-3-medium-4k-instruct">Microsoft: Phi-3 Medium</option>
+    `;
+      // Log fallback models for debugging
+      console.log('[DEBUG] Fallback models rendered:', [
+        "gpt-4o",
+        "gpt-4o-mini",
+        "o1-preview",
+        "o1-mini",
+        "gpt-4",
+        "gpt-3.5-turbo",
+        "claude-3-5-sonnet",
+        "claude-3-haiku",
+        "llama-3.1-70b-instruct",
+        "llama-3.1-8b-instruct",
+        "mistral-large",
+        "phi-3-medium-4k-instruct"
+      ]);
+    }
+    return;
+  }
+
+  const modelSelect = document.getElementById('model-select');
+  if (!modelSelect) {
+    console.error('Model select element not found');
+    return;
+  }
+
+  modelSelect.innerHTML = '';
+
+  const textModels = models.filter(model =>
+    model.supported_output_modalities &&
+    model.supported_output_modalities.includes('text') &&
+    !model.supported_output_modalities.includes('embeddings')
+  );
+
+  textModels.sort((a, b) => {
+    if (a.publisher !== b.publisher) {
+      return a.publisher.localeCompare(b.publisher);
+    }
+    return a.name.localeCompare(b.name);
+  });
+
+  console.log('[DEBUG] Models being added to dropdown:', textModels.map(m => m.id));
+  textModels.forEach(model => {
+    const option = document.createElement('option');
+    option.value = model.id.includes('/') ? model.id.split('/')[1] : model.id;
+    option.dataset.fullModelId = model.id;
+    option.textContent = `${model.publisher}: ${model.name}`;
+    option.title = model.summary || model.name;
+    modelSelect.appendChild(option);
+  });
+
+  const savedModel = localStorage.getItem('selected_model');
+  const shortSavedModel = savedModel && savedModel.includes('/') ? savedModel.split('/')[1] : savedModel;
+
+  if (shortSavedModel && textModels.some(model => {
+    const shortId = model.id.includes('/') ? model.id.split('/')[1] : model.id;
+    return shortId === shortSavedModel;
+  })) {
+    modelSelect.value = shortSavedModel;
+    appState.selectedModel = shortSavedModel;
+  } else if (textModels.length > 0) {
+    const defaultModel = textModels.find(model => model.id === 'openai/gpt-4.1') || textModels[0];
+    const shortDefaultId = defaultModel.id.includes('/') ? defaultModel.id.split('/')[1] : defaultModel.id;
+    modelSelect.value = shortDefaultId;
+    appState.selectedModel = shortDefaultId;
+    localStorage.setItem('selected_model', shortDefaultId);
+  }
+
+  console.log(`Model dropdown populated with ${textModels.length} models. Selected: ${appState.selectedModel}`);
+}
+
+
+  // Visualizer Control Functions
+  async function startVisualizers(stream) {
+    const containerLeft = document.getElementById('visualizer-container-left');
+    const containerRight = document.getElementById('visualizer-container-right');
+
+    if (!containerLeft || !containerRight) {
+        console.error('Visualizer containers not found. Left:', containerLeft, 'Right:', containerRight);
+        return;
     }
     
-    actions.appendChild(loadBtn);
-    actions.appendChild(deleteBtn);
-    
-    presetItem.appendChild(nameSpan);
-    presetItem.appendChild(actions);
-    
-    presetList.appendChild(presetItem);
-  });
-}
+    stopVisualizers(); // Clear any previous state
 
-// Load a preset by ID
-function loadPreset(presetId) {
-  const preset = appState.presets[presetId];
-  if (preset) {
-    document.getElementById('system-prompt').value = preset.prompt;
-    appState.systemPrompt = preset.prompt;
-    localStorage.setItem('system_prompt', preset.prompt);
-    
-    // Update the dropdown selection
-    document.getElementById('preset-select').value = presetId;
+    try {
+        console.log("Attempting to start left visualizer...");
+        audioProcessorLeft = new AudioProcessor();
+        await audioProcessorLeft.initAudioContext();
+        audioProcessorLeft.setupVisualizer(stream, containerLeft);
+        console.log("Left visualizer setup attempted.");
+
+        console.log("Attempting to start right visualizer...");
+        audioProcessorRight = new AudioProcessor();
+        await audioProcessorRight.initAudioContext();
+        audioProcessorRight.setupVisualizer(stream, containerRight);
+        console.log("Right visualizer setup attempted.");
+
+        console.log('Dual visualizers setup process completed.');
+    } catch (error) {
+        console.error('Error starting visualizers:', error);
+        if (audioProcessorLeft) {
+            try { audioProcessorLeft.stopVisualizer(); } catch(e) { console.error("Error stopping left visualizer during cleanup:", e); }
+        }
+        if (audioProcessorRight) {
+            try { audioProcessorRight.stopVisualizer(); } catch(e) { console.error("Error stopping right visualizer during cleanup:", e); }
+        }
+        audioProcessorLeft = null;
+        audioProcessorRight = null;
+    }
   }
-}
 
-// Load selected preset from dropdown
-function loadSelectedPreset(e) {
-  const presetId = e.target.value;
-  if (presetId) {
-    loadPreset(presetId);
+  function stopVisualizers() {
+    console.log("Stopping visualizers...");
+    if (audioProcessorLeft) {
+        try {
+            audioProcessorLeft.stopVisualizer();
+            console.log("Left visualizer stopped.");
+        } catch (e) {
+            console.error("Error stopping left visualizer:", e);
+        }
+        audioProcessorLeft = null;
+    }
+    if (audioProcessorRight) {
+         try {
+            audioProcessorRight.stopVisualizer();
+            console.log("Right visualizer stopped.");
+        } catch (e) {
+            console.error("Error stopping right visualizer:", e);
+        }
+        audioProcessorRight = null;
+    }
+    // Ensure containers are also cleared of any direct children if necessary, though AudioProcessor.stopVisualizer should handle its own bars.
+    // const containerLeft = document.getElementById('visualizer-container-left');
+    // const containerRight = document.getElementById('visualizer-container-right');
+    // if(containerLeft) containerLeft.innerHTML = '';
+    // if(containerRight) containerRight.innerHTML = '';
+    console.log('Dual visualizers stopped and cleaned up.');
   }
-}
 
-// Delete a preset
-function deletePreset(presetId) {
-  if (confirm(`Delete the preset "${appState.presets[presetId].name}"?`)) {
-    // Remove from state
-    delete appState.presets[presetId];
-    
+  // Recording Control Function
+  async function toggleRecording() {
+    console.log('[index.html] toggleRecording called');
+    const toggleBtn = document.getElementById('toggle');
+    if (!toggleBtn) {
+        console.error("Toggle button not found");
+        return;
+    }
+
+    if (!on) { // Start recording
+        try {
+            console.log("Attempting to get user media...");
+            currentStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            console.log("Microphone access granted.");
+
+            r.onstart = () => {
+                console.log("Speech recognition service has started.");
+            };
+            r.onend = () => {
+                console.log("Speech recognition service disconnected.");
+                // If 'on' is still true, it means it stopped unexpectedly (e.g. no speech, network error)
+                // Depending on desired behavior, you might want to restart it or handle UI.
+                // For now, if 'on' is true, we assume it should be listening, so if it stops, we might need to stop everything.
+                // However, continuous recognition usually tries to restart itself or needs manual restart on 'onend' if desired.
+                // For this toggle, if 'on' is false, it means we intentionally stopped it.
+            };
+            r.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                if (event.error === 'no-speech') {
+                    console.warn('No speech detected. Recognition stopped.');
+                    // Optionally handle UI feedback for no speech
+                } else if (event.error === 'audio-capture') {
+                    alert('Audio capture error. Please ensure your microphone is working and permissions are granted.');
+                    // Force stop everything
+                    if (on) toggleRecording(); // Simulate a stop click
+                } else if (event.error === 'not-allowed') {
+                    alert('Speech recognition permission denied. Please allow microphone access in your browser settings.');
+                    if (on) toggleRecording(); 
+                }
+                // Other errors might require different handling
+            };
+            
+            // Ensure transcription works: set up r.onresult handler
+            r.onresult = async (e) => {
+              console.log('[index.html] r.onresult fired');
+              const transcript = e.results[e.results.length - 1][0].transcript.trim();
+              console.log('[index.html] Transcript:', transcript);
+              const lastObjectionElem = document.getElementById('lastObjection');
+              if (lastObjectionElem) {
+                lastObjectionElem.textContent = transcript;
+              }
+              // If the transcript changed, generate a new response
+              if (transcript !== lastTranscript) {
+                lastTranscript = transcript;
+                await generateResponse(transcript);
+              }
+            };
+            
+            console.log('[index.html] Calling r.start()');
+            r.start();
+            // console.log("Speech recognition started."); // Logged by r.onstart
+
+            const containerLeft = document.getElementById('visualizer-container-left');
+            const containerRight = document.getElementById('visualizer-container-right');
+            if (containerLeft) containerLeft.style.display = 'flex'; 
+            if (containerRight) containerRight.style.display = 'flex';
+
+            await startVisualizers(currentStream); 
+
+            toggleBtn.textContent = '🚨 Stop Listening';
+            toggleBtn.classList.add('recording');
+            on = true;
+            console.log('[index.html] Recording started');
+            if (window.uiStateManager) window.uiStateManager.updateState(window.uiStateManager.states.LISTENING);
+
+        } catch (err) {
+            console.error('Error accessing microphone or starting systems:', err);
+            alert('Could not access microphone. Please check permissions. Error: ' + err.message);
+            if (window.uiStateManager) window.uiStateManager.updateState(window.uiStateManager.states.ERROR);
+            
+            stopVisualizers(); // Ensure visualizers are stopped
+            if (currentStream) { // Release mic if stream was obtained before error
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+            toggleBtn.textContent = '🎤 Start Listening';
+            toggleBtn.classList.remove('recording');
+            on = false;
+        }
+    } else { // Stop recording
+        r.stop();
+        // console.log("Speech recognition stopped."); // Logged by r.onend
+
+        stopVisualizers();
+        
+        const containerLeft = document.getElementById('visualizer-container-left');
+        const containerRight = document.getElementById('visualizer-container-right');
+        if (containerLeft) containerLeft.style.display = 'none';
+        if (containerRight) containerRight.style.display = 'none';
+
+        toggleBtn.textContent = '🎤 Start Listening';
+        toggleBtn.classList.remove('recording');
+        on = false;
+        console.log('[index.html] Recording stopped');
+        if (window.uiStateManager) window.uiStateManager.updateState(window.uiStateManager.states.READY);
+
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
+            console.log("Microphone stream tracks stopped.");
+        }
+    }
+  }
+
+  // Load app state from localStorage
+  function loadSavedState() {
+    // Load system prompt
+    const savedPrompt = localStorage.getItem('system_prompt');
+    if (savedPrompt) {
+      appState.systemPrompt = savedPrompt;
+
+      // Update dialog version if it exists
+      const dialogPrompt = document.getElementById('system-prompt-dialog');
+      if (dialogPrompt) {
+        dialogPrompt.value = savedPrompt;
+      }
+    }
+
+    // Load selected model
+    const savedModel = localStorage.getItem('selected_model');
+    if (savedModel) {
+      appState.selectedModel = savedModel;
+    }
+
+    // Load GitHub token
+    const githubToken = localStorage.getItem('github_token') || '';
+
+    // Load response history
+    const savedHistory = localStorage.getItem('response_history');
+    if (savedHistory) {
+      try {
+        appState.responseHistory = JSON.parse(savedHistory);
+      } catch (e) {
+        console.error('Error parsing saved history:', e);
+        appState.responseHistory = [];
+      }
+    }
+
+    // Load uploaded files
+    const savedFiles = localStorage.getItem('uploaded_files');
+    if (savedFiles) {
+      try {
+        appState.uploadedFiles = JSON.parse(savedFiles);
+      } catch (e) {
+        console.error('Error parsing saved files:', e);
+        appState.uploadedFiles = [];
+      }
+    }
+
+    // Load custom presets
+    const savedPresets = localStorage.getItem('custom_presets');
+    if (savedPresets) {
+      try {
+        const customPresets = JSON.parse(savedPresets);
+        // Merge custom presets with default presets
+        appState.presets = { ...appState.presets, ...customPresets };
+        // Update the preset dropdown options
+        setTimeout(() => {
+          updatePresetOptions();
+          updatePresetOptionsDialog();
+        }, 0);
+      } catch (e) {
+        console.error('Error parsing saved presets:', e);
+      }
+    } else {
+      // Make sure we have all default presets in the dropdown
+      setTimeout(() => {
+        updatePresetOptions();
+        updatePresetOptionsDialog();
+      }, 0);
+    }
+  }
+
+  // Preset management functions
+  function renderPresetList() {
+    const presetList = document.getElementById('preset-list');
+    presetList.innerHTML = '';
+
+    // Create preset items
+    Object.entries(appState.presets).forEach(([id, preset]) => {
+      const presetItem = document.createElement('div');
+      presetItem.className = 'preset-item';
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'preset-name';
+      nameSpan.textContent = preset.name;
+
+      const actions = document.createElement('div');
+      actions.className = 'preset-actions';
+
+      const loadBtn = document.createElement('button');
+      loadBtn.textContent = 'Load';
+      loadBtn.addEventListener('click', () => {
+        loadPreset(id);
+        hidePresetManagerDialog();
+      });
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Delete';
+
+      // Don't allow deleting the default presets
+      if (['executive-reframer', 'negotiation'].includes(id)) {
+        deleteBtn.disabled = true;
+        deleteBtn.title = 'Cannot delete default presets';
+      } else {
+        deleteBtn.addEventListener('click', () => deletePreset(id));
+      }
+
+      actions.appendChild(loadBtn);
+      actions.appendChild(deleteBtn);
+
+      presetItem.appendChild(nameSpan);
+      presetItem.appendChild(actions);
+
+      presetList.appendChild(presetItem);
+    });
+  }
+
+  // Load a preset by ID
+  function loadPreset(presetId) {
+    const preset = appState.presets[presetId];
+    if (preset) {
+      // Update dialog version if it exists
+      const dialogPrompt = document.getElementById('system-prompt-dialog');
+      if (dialogPrompt) {
+        dialogPrompt.value = preset.prompt;
+      }
+
+      appState.systemPrompt = preset.prompt;
+      localStorage.setItem('system_prompt', preset.prompt);
+
+      // Update the dropdown selections
+      const mainSelect = document.getElementById('preset-select');
+      if (mainSelect) {
+        mainSelect.value = presetId;
+      }
+      const dialogSelect = document.getElementById('preset-select-dialog');
+      if (dialogSelect) {
+        dialogSelect.value = presetId;
+      }
+    }
+  }
+
+  // Load selected preset from dropdown
+  function loadSelectedPreset(e) {
+    const presetId = e.target.value;
+    if (presetId) {
+      loadPreset(presetId);
+    }
+  }
+
+  // Delete a preset
+  function deletePreset(presetId) {
+    if (confirm(`Delete the preset "${appState.presets[presetId].name}"?`)) {
+      // Remove from state
+      delete appState.presets[presetId];
+
+      // Filter out default presets and save custom ones
+      const customPresets = {};
+      Object.entries(appState.presets).forEach(([id, preset]) => {
+        if (!['executive-reframer', 'negotiation'].includes(id)) {
+          customPresets[id] = preset;
+        }
+      });
+
+      // Save custom presets to localStorage
+      localStorage.setItem('custom_presets', JSON.stringify(customPresets));
+
+      // Update UI
+      renderPresetList();
+      updatePresetOptions();
+      updatePresetOptionsDialog();
+    }
+  }
+
+  // Show preset manager dialog
+  function showPresetManagerDialog() {
+    renderPresetList();
+    document.getElementById('preset-dialog').classList.remove('hidden');
+  }
+
+  // Hide preset manager dialog
+  function hidePresetManagerDialog() {
+    document.getElementById('preset-dialog').classList.add('hidden');
+  }
+
+  // Show new preset dialog
+  function showNewPresetDialog() {
+    document.getElementById('new-preset-name').value = '';
+    document.getElementById('new-preset-status').textContent = '';
+    document.getElementById('new-preset-dialog').classList.add('new-preset-dialog');
+    document.getElementById('new-preset-dialog').classList.remove('hidden');
+  }
+
+  // Hide new preset dialog
+  function hideNewPresetDialog() {
+    document.getElementById('new-preset-dialog').classList.add('hidden');
+  }
+
+  // Save a new preset
+  function saveNewPreset() {
+    const nameInput = document.getElementById('new-preset-name');
+    const statusElement = document.getElementById('new-preset-status');
+    const name = nameInput.value.trim();
+
+    if (!name) {
+      statusElement.textContent = 'Please enter a name for the preset';
+      statusElement.style.color = '#dc3545';
+      return;
+    }
+
+    // Create a unique ID based on the name
+    const id = 'custom-' + name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+
+    // Check if ID already exists
+    if (appState.presets[id]) {
+      statusElement.textContent = 'A preset with this name already exists';
+      statusElement.style.color = '#dc3545';
+      return;
+    }
+
+    // Create the new preset
+    const newPreset = {
+      name: name,
+      prompt: document.getElementById('system-prompt-dialog')?.value || appState.systemPrompt
+    };
+
+    // Add to state
+    appState.presets[id] = newPreset;
+
     // Filter out default presets and save custom ones
     const customPresets = {};
-    Object.entries(appState.presets).forEach(([id, preset]) => {
-      if (!['executive-reframer', 'negotiation'].includes(id)) {
-        customPresets[id] = preset;
+    Object.entries(appState.presets).forEach(([presetId, preset]) => {
+      if (!['executive-reframer', 'negotiation'].includes(presetId)) {
+        customPresets[presetId] = preset;
       }
     });
-    
-    // Save custom presets to localStorage
+
+    // Save to localStorage
     localStorage.setItem('custom_presets', JSON.stringify(customPresets));
-    
-    // Update UI
-    renderPresetList();
+
+    // Update the preset dropdown options
+    updatePresetOptions();
+    updatePresetOptionsDialog();
+
+    // Show success message
+    statusElement.textContent = 'Preset saved successfully';
+    statusElement.style.color = '#28a745';
+
+    // Close dialog after delay
+    setTimeout(hideNewPresetDialog, 1500);
   }
-}
 
-// Show preset manager dialog
-function showPresetManagerDialog() {
-  renderPresetList();
-  document.getElementById('preset-dialog').classList.remove('hidden');
-}
+  // Update preset dropdown options
+  function updatePresetOptions() {
+    const select = document.getElementById('preset-select');
 
-// Hide preset manager dialog
-function hidePresetManagerDialog() {
-  document.getElementById('preset-dialog').classList.add('hidden');
-}
+    if (select) {
+      // Clear existing options except the default one
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
 
-// Show new preset dialog
-function showNewPresetDialog() {
-  document.getElementById('new-preset-name').value = '';
-  document.getElementById('new-preset-status').textContent = '';
-  document.getElementById('new-preset-dialog').classList.remove('hidden');
-}
-
-// Hide new preset dialog
-function hideNewPresetDialog() {
-  document.getElementById('new-preset-dialog').classList.add('hidden');
-}
-
-// Save a new preset
-function saveNewPreset() {
-  const nameInput = document.getElementById('new-preset-name');
-  const statusElement = document.getElementById('new-preset-status');
-  const name = nameInput.value.trim();
-  
-  if (!name) {
-    statusElement.textContent = 'Please enter a name for the preset';
-    statusElement.style.color = '#dc3545';
-    return;
-  }
-  
-  // Create a unique ID based on the name
-  const id = 'custom-' + name.toLowerCase().replace(/[^a-z0-9]/g, '-');
-  
-  // Check if ID already exists
-  if (appState.presets[id]) {
-    statusElement.textContent = 'A preset with this name already exists';
-    statusElement.style.color = '#dc3545';
-    return;
-  }
-  
-  // Create the new preset
-  const newPreset = {
-    name: name,
-    prompt: document.getElementById('system-prompt').value
-  };
-  
-  // Add to state
-  appState.presets[id] = newPreset;
-  
-  // Filter out default presets and save custom ones
-  const customPresets = {};
-  Object.entries(appState.presets).forEach(([presetId, preset]) => {
-    if (!['executive-reframer', 'negotiation'].includes(presetId)) {
-      customPresets[presetId] = preset;
+      // Add all presets as options
+      Object.entries(appState.presets).forEach(([id, preset]) => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = preset.name;
+        select.appendChild(option);
+      });
     }
-  });
-  
-  // Save to localStorage
-  localStorage.setItem('custom_presets', JSON.stringify(customPresets));
-  
-  // Update the preset dropdown options
-  updatePresetOptions();
-  
-  // Show success message
-  statusElement.textContent = 'Preset saved successfully';
-  statusElement.style.color = '#28a745';
-  
-  // Close dialog after delay
-  setTimeout(hideNewPresetDialog, 1500);
-}
-
-// Update preset dropdown options
-function updatePresetOptions() {
-  const select = document.getElementById('preset-select');
-  
-  // Clear existing options except the default one
-  while (select.options.length > 1) {
-    select.remove(1);
   }
-  
-  // Add all presets as options
-  Object.entries(appState.presets).forEach(([id, preset]) => {
-    const option = document.createElement('option');
-    option.value = id;
-    option.textContent = preset.name;
-    select.appendChild(option);
-  });
-}
 
-// Save system prompt
-function saveSystemPrompt() {
-  const promptText = document.getElementById('system-prompt').value.trim();
-  if (promptText) {
-    appState.systemPrompt = promptText;
-    localStorage.setItem('system_prompt', promptText);
-    
-    // Show a flash message
-    const saveBtn = document.getElementById('save-prompt');
-    const originalText = saveBtn.textContent;
-    saveBtn.textContent = 'Saved!';
-    saveBtn.style.backgroundColor = '#28a745';
-    
-    setTimeout(() => {
-      saveBtn.textContent = originalText;
-      saveBtn.style.backgroundColor = '';
-    }, 1500);
+  // Update preset dropdown options for dialog
+  function updatePresetOptionsDialog() {
+    const select = document.getElementById('preset-select-dialog');
+
+    if (select) {
+      // Clear existing options except the default one
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Add all presets as options
+      Object.entries(appState.presets).forEach(([id, preset]) => {
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = preset.name;
+        select.appendChild(option);
+      });
+    }
   }
-}
 
-// Update selected model
-function updateSelectedModel(e) {
-  appState.selectedModel = e.target.value;
-  localStorage.setItem('selected_model', appState.selectedModel);
-}
+  // Save system prompt
+  function saveSystemPrompt() {
+    const dialogPrompt = document.getElementById('system-prompt-dialog');
+    const promptText = dialogPrompt?.value.trim() || appState.systemPrompt;
 
-// Toggle dark/light theme
-function toggleTheme() {
-  document.body.classList.toggle('dark-mode');
-  const isDark = document.body.classList.contains('dark-mode');
-  localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
-  
-  const themeToggle = document.getElementById('theme-toggle');
-  if (themeToggle) {
-    if (isDark) {
-      themeToggle.textContent = '🌓';
+    if (promptText) {
+      appState.systemPrompt = promptText;
+      localStorage.setItem('system_prompt', promptText);
+
+      // Show a flash message
+      const saveBtn = document.getElementById('save-prompt');
+      if (saveBtn) {
+        const originalText = saveBtn.textContent;
+        saveBtn.textContent = 'Saved!';
+        saveBtn.style.backgroundColor = '#28a745';
+
+        setTimeout(() => {
+          saveBtn.textContent = originalText;
+          saveBtn.style.backgroundColor = '';
+        }, 1500);
+      }
+    }
+  }
+
+  // Update selected model
+  function updateSelectedModel(e) {
+    appState.selectedModel = e.target.value;
+    localStorage.setItem('selected_model', appState.selectedModel);
+  }
+
+  // Toggle dark/light theme
+  function toggleTheme() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
+
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+      if (isDark) {
+        themeToggle.textContent = '🌙';
+      } else {
+        themeToggle.textContent = '☀️';
+      }
+    }
+  }
+
+  // API Key dialog functions
+  function showApiKeyDialog() {
+    const dialog = document.getElementById('settings-dialog');
+    const githubInput = document.getElementById('github-token-textarea');
+    const systemPromptInput = document.getElementById('system-prompt-dialog');
+    const presetSelect = document.getElementById('preset-select-dialog');
+    const status = document.getElementById('api-key-status');
+
+    // Pre-populate with saved values
+    const githubToken = localStorage.getItem('github_token') || '';
+    const savedPrompt = localStorage.getItem('system_prompt') || appState.systemPrompt;
+
+    githubInput.value = githubToken;
+    systemPromptInput.value = savedPrompt;
+
+    // Update preset dropdown
+    updatePresetOptionsDialog();
+
+    // Initialize file upload interface
+    renderUploadedFiles();
+    updateClearButtonState();
+
+    // Clear any previous status messages
+    if (status) {
+      status.textContent = '';
+      status.style.color = '';
+    }
+
+    dialog.classList.remove('hidden');
+    setTimeout(() => githubInput.focus(), 100);
+
+    // Handle Enter key in input field
+    const handleKeyDown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveApiKey();
+      }
+    };
+
+    // Remove any existing listener and add new one
+    githubInput.removeEventListener('keydown', handleKeyDown);
+    githubInput.addEventListener('keydown', handleKeyDown);
+  }
+
+  function hideApiKeyDialog() {
+    const dialog = document.getElementById('settings-dialog');
+    if (dialog) {
+      dialog.classList.add('hidden');
+    }
+  }
+
+  function saveApiKey() {
+    const githubInput = document.getElementById('github-token-textarea');
+    const systemPromptInput = document.getElementById('system-prompt-dialog');
+    const status = document.getElementById('api-key-status');
+
+    if (!githubInput || !status) {
+      console.error('Required elements not found for API key save');
+      return;
+    }
+
+    const githubToken = githubInput.value.trim();
+    const systemPromptText = systemPromptInput?.value.trim();
+    let isValid = true;
+
+    // Validate GitHub token if provided
+    if (githubToken && !githubToken.startsWith('ghp_')) {
+      status.textContent = 'Invalid GitHub token format. It should start with "ghp_"';
+      status.style.color = '#dc3545';
+      isValid = false;
+    }
+
+    if (isValid) {
+      // Save GitHub token if provided
+      if (githubToken) {
+        localStorage.setItem('github_token', githubToken);
+      }
+
+      // Save system prompt if provided
+      if (systemPromptText) {
+        appState.systemPrompt = systemPromptText;
+        localStorage.setItem('system_prompt', systemPromptText);
+      }
+
+      status.textContent = 'Settings saved successfully!';
+      status.style.color = '#28a745';
+      setTimeout(hideApiKeyDialog, 1000);
+    }
+  }
+
+  // File Upload Functions
+  function handleFileUpload(event) {
+    const files = Array.from(event.target.files);
+    const status = document.getElementById('api-key-status');
+
+    if (files.length === 0) return;
+
+    files.forEach(file => {
+      // Check file size (limit to 1MB per file)
+      if (file.size > 1024 * 1024) {
+        if (status) {
+          status.textContent = `File "${file.name}" is too large. Maximum size is 1MB.`;
+          status.style.color = '#dc3545';
+        }
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const fileData = {
+          id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          content: e.target.result,
+          uploadDate: new Date().toISOString()
+        };
+
+        // Add to app state
+        appState.uploadedFiles.push(fileData);
+
+        // Save to localStorage
+        localStorage.setItem('uploaded_files', JSON.stringify(appState.uploadedFiles));
+
+        // Update UI
+        renderUploadedFiles();
+        updateClearButtonState();
+
+        if (status) {
+          status.textContent = `File "${file.name}" uploaded successfully!`;
+          status.style.color = '#28a745';
+          setTimeout(() => {
+            status.textContent = '';
+          }, 3000);
+        }
+      };
+
+      reader.onerror = function () {
+        if (status) {
+          status.textContent = `Error reading file "${file.name}"`;
+          status.style.color = '#dc3545';
+        }
+      };
+
+      reader.readAsText(file);
+    });
+
+    // Clear the input so the same file can be uploaded again if needed
+    event.target.value = '';
+  }
+
+  function renderUploadedFiles() {
+    const container = document.getElementById('uploaded-files-list');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    if (appState.uploadedFiles.length === 0) {
+      container.style.display = 'none';
+      return;
+    }
+
+    container.style.display = 'block';
+
+    appState.uploadedFiles.forEach(file => {
+      const fileItem = document.createElement('div');
+      fileItem.className = 'uploaded-file-item';
+
+      fileItem.innerHTML = `
+      <div class="uploaded-file-info">
+        <div class="uploaded-file-name">${file.name}</div>
+        <div class="uploaded-file-size">${formatFileSize(file.size)} • ${new Date(file.uploadDate).toLocaleString()}</div>
+      </div>
+      <button class="remove-file-btn" onclick="removeFile('${file.id}')" title="Remove file">🗑️</button>
+    `;
+
+      container.appendChild(fileItem);
+    });
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  function removeFile(fileId) {
+    appState.uploadedFiles = appState.uploadedFiles.filter(file => file.id !== fileId);
+    localStorage.setItem('uploaded_files', JSON.stringify(appState.uploadedFiles));
+    renderUploadedFiles();
+    updateClearButtonState();
+
+    const status = document.getElementById('api-key-status');
+    if (status) {
+      status.textContent = 'File removed successfully';
+      status.style.color = '#28a745';
+      setTimeout(() => {
+        status.textContent = '';
+      }, 2000);
+    }
+  }
+
+  function clearAllFiles() {
+    if (appState.uploadedFiles.length === 0) return;
+
+    if (confirm('Are you sure you want to remove all uploaded files?')) {
+      appState.uploadedFiles = [];
+      localStorage.removeItem('uploaded_files');
+      renderUploadedFiles();
+      updateClearButtonState();
+
+      const status = document.getElementById('api-key-status');
+      if (status) {
+        status.textContent = 'All files cleared successfully';
+        status.style.color = '#28a745';
+        setTimeout(() => {
+          status.textContent = '';
+        }, 2000);
+      }
+    }
+  }
+
+  function updateClearButtonState() {
+    const clearBtn = document.getElementById('clear-files-btn');
+    if (clearBtn) {
+      clearBtn.disabled = appState.uploadedFiles.length === 0;
+    }
+  }
+
+  function getUploadedFilesContext() {
+    if (appState.uploadedFiles.length === 0) {
+      return '';
+    }
+
+    let context = '\n\n--- UPLOADED FILES CONTEXT ---\n';
+    appState.uploadedFiles.forEach(file => {
+      context += `\nFile: ${file.name}\n`;
+      context += `Content:\n${file.content}\n`;
+      context += '---\n';
+    });
+
+    return context;
+  }
+
+  // Helper function to format model display
+  function formatModelDisplay(modelDisplay) {
+    if (modelDisplay.includes('/')) {
+      // New format: "publisher/model-name" -> "Publisher: Model Name"
+      const [publisher, modelName] = modelDisplay.split('/');
+      const publisherCapitalized = publisher.charAt(0).toUpperCase() + publisher.slice(1);
+      return `${publisherCapitalized}: ${modelName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}`;
     } else {
-      themeToggle.textContent = '🌓';
+      // Legacy format handling
+      return modelDisplay
+        .replace('gpt-4o-2024-08-06', 'GPT-4o')
+        .replace('gpt-4o-mini-2024-07-18', 'GPT-4o Mini');
     }
   }
-}
 
-// API Key dialog functions
-function showApiKeyDialog() {
-  const dialog = document.getElementById('api-key-dialog');
-  const githubInput = document.getElementById('github-token-input');
-  const status = document.getElementById('api-key-status');
-  
-  const githubToken = localStorage.getItem('github_token') || '';
-  
-  githubInput.value = githubToken;
-  
-  // Clear any previous status messages
-  if (status) {
-    status.textContent = '';
-    status.style.color = '';
+  // Render the history list
+  function renderHistoryList() {
+    const historyList = document.getElementById('history-list');
+    historyList.innerHTML = '';
+
+    // Display history items from newest to oldest
+    const sortedHistory = [...appState.responseHistory].reverse();
+
+    sortedHistory.forEach(item => {
+      const historyItem = document.createElement('div');
+      historyItem.className = 'history-item';
+
+      const objection = document.createElement('div');
+      objection.className = 'history-item-objection';
+      objection.textContent = '👂 ' + item.objection;
+
+      const response = document.createElement('div');
+      response.className = 'history-item-response';
+      response.textContent = '💡 ' + item.response;
+
+      const meta = document.createElement('div');
+      meta.className = 'history-item-meta';
+
+      const timestamp = document.createElement('span');
+      timestamp.textContent = item.timestamp;
+
+      const model = document.createElement('span');
+      // Friendly display names for models
+      let modelDisplay = item.model;
+
+      // Format model display using helper function
+      modelDisplay = formatModelDisplay(modelDisplay);
+
+      model.textContent = modelDisplay;
+
+      meta.appendChild(timestamp);
+      meta.appendChild(model);
+
+      historyItem.appendChild(objection);
+      historyItem.appendChild(response);
+      historyItem.appendChild(meta);
+
+      historyList.appendChild(historyItem);
+    });
   }
-  
-  dialog.classList.remove('hidden');
-  setTimeout(() => githubInput.focus(), 100);
-  
-  // Handle Enter key in input field
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      saveApiKey();
+
+  // Add a response to history
+  function addToHistory(objection, response, model) {
+    const now = new Date();
+    const timestamp = now.toLocaleTimeString();
+
+    // Create history item
+    const historyItem = {
+      objection,
+      response,
+      model,
+      timestamp
+    };
+
+    // Add to history
+    appState.responseHistory.push(historyItem);
+
+    // Limit history to 50 items
+    if (appState.responseHistory.length > 50) {
+      appState.responseHistory.shift();
     }
-  };
-  
-  // Remove any existing listener and add new one
-  githubInput.removeEventListener('keydown', handleKeyDown);
-  githubInput.addEventListener('keydown', handleKeyDown);
-}
 
-function hideApiKeyDialog() {
-  const dialog = document.getElementById('api-key-dialog');
-  if (dialog) {
-    dialog.classList.add('hidden');
-  }
-}
+    // Save to localStorage
+    localStorage.setItem('response_history', JSON.stringify(appState.responseHistory));
 
-function saveApiKey() {
-  const githubInput = document.getElementById('github-token-input');
-  const status = document.getElementById('api-key-status');
-  
-  if (!githubInput || !status) {
-    console.error('Required elements not found for API key save');
-    return;
+    // Update UI
+    renderHistoryList();
   }
-  
-  const githubToken = githubInput.value.trim();
-  let isValid = true;
-  
-  // Validate GitHub token if provided
-  if (githubToken && !githubToken.startsWith('ghp_')) {
-    status.textContent = 'Invalid GitHub token format. It should start with "ghp_"';
-    status.style.color = '#dc3545';
-    isValid = false;
-  }
-  
-  if (isValid) {
-    if (githubToken) {
-      localStorage.setItem('github_token', githubToken);
+
+  // Clear response history
+  function clearResponseHistory() {
+    if (confirm('Are you sure you want to clear all response history? This cannot be undone.')) {
+      // Clear history in state
+      appState.responseHistory = [];
+
+      // Clear from localStorage
+      localStorage.removeItem('response_history');
+
+      // Update UI
+      renderHistoryList();
+
+      // Show confirmation
+      const clearBtn = document.getElementById('clear-history');
+      const originalText = clearBtn.textContent;
+      clearBtn.textContent = 'Cleared!';
+
+      setTimeout(() => {
+        clearBtn.textContent = originalText;
+      }, 1500);
     }
-    
-    status.textContent = 'GitHub token saved successfully!';
-    status.style.color = '#28a745';
-    setTimeout(hideApiKeyDialog, 1000);
   }
-}
 
-// Toggle recording function
-function toggleRecording() {
-  const button = document.getElementById('toggle');
-  
-  if (on) {
-    r.stop();
-    on = false;
-    button.textContent = '🎤 Start Listening';
-    button.classList.remove('active');
-    document.getElementById('lastObjection').textContent = 'Your speech will appear here...';
-    
-    // Update UI state to ready with safe error handling
+  // Function to generate a response using OpenAI API
+  async function generateResponse(text) {
+    const replyElement = document.getElementById('reply');
+
+    // Show loading indicator
+    replyElement.textContent = 'Thinking...';
+    replyElement.classList.add('pulsing');
+
+    // Update UI state to processing with safe error handling
     try {
       if (window.uiStateManager && window.uiStateManager.states && window.uiStateManager.updateState) {
-        window.uiStateManager.updateState(window.uiStateManager.states.READY);
+        window.uiStateManager.updateState(window.uiStateManager.states.PROCESSING);
       }
     } catch (e) {
       console.warn('Error updating UI state:', e);
     }
-    
-    // Stop visualizer when recording stops if available
-    if (audioProcessor && typeof audioProcessor.stopVisualizer === 'function') {
-      try {
-        audioProcessor.stopVisualizer();
-        // Hide the visualizer container
-        const visualizerContainer = document.getElementById('visualizer-container');
-        if (visualizerContainer) {
-          visualizerContainer.style.display = 'none';
-        }
-      } catch (e) {
-        console.error('Error stopping visualizer:', e);
-      }
-    }
-  } else {
-    // Start speech recognition
+
     try {
-      r.start();
-      on = true;
-      button.textContent = '🛑 Stop Listening';
-      button.classList.add('active');
-      
-      // Update UI state to listening with safe error handling
+      // Get selected model - need full model ID for API calls
+      const modelSelect = document.getElementById('model-select');
+      const selectedOption = modelSelect.options[modelSelect.selectedIndex];
+      const fullModelId = selectedOption?.dataset.fullModelId || appState.selectedModel;
+
+      // Fallback: if no data attribute, assume it needs 'openai/' prefix for common models
+      const model = fullModelId || (appState.selectedModel.includes('/') ? appState.selectedModel : `openai/${appState.selectedModel}`);
+      // Log the model value being sent to the backend for debugging
+      console.log('[DEBUG] Model sent to backend:', model);
+
+      // Get system prompt
+      const systemPrompt = appState.systemPrompt;
+
+      // Generate response using GitHub Inference API
+      const reply = await generateGitHubResponse(text, model, systemPrompt, replyElement);
+
+      // Add to history after successful response
+      addToHistory(text, reply, model);
+
+      // Update UI state back to listening if still recording with safe error handling
       try {
         if (window.uiStateManager && window.uiStateManager.states && window.uiStateManager.updateState) {
-          window.uiStateManager.updateState(window.uiStateManager.states.LISTENING);
+          if (on) {
+            window.uiStateManager.updateState(window.uiStateManager.states.LISTENING);
+          } else {
+            window.uiStateManager.updateState(window.uiStateManager.states.READY);
+          }
         }
       } catch (e) {
         console.warn('Error updating UI state:', e);
       }
-      
-      // Start audio context and visualizer if available
-      if (audioProcessor && typeof audioProcessor.initAudioContext === 'function') {
-        try {
-          // Get audio stream for visualization
-          navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then(stream => {
-              audioProcessor.initAudioContext()
-                .then(() => {
-                  const visualizerContainer = document.getElementById('visualizer-container');
-                  if (visualizerContainer && typeof audioProcessor.setupVisualizer === 'function') {
-                    // Make the container visible
-                    visualizerContainer.style.display = 'flex';
-                    audioProcessor.setupVisualizer(stream, visualizerContainer);
-                  }
-                })
-                .catch(err => console.error('Failed to initialize audio context:', err));
-            })
-            .catch(err => console.error('Error accessing microphone:', err));
-        } catch (e) {
-          console.error('Error with audio processing:', e);
-          // Continue with recording even if visualization fails
-        }
-      }
-    } catch (e) {
-      console.error('Error starting speech recognition:', e);
-      alert('Failed to start speech recognition. Please try again.');
-      
+
+    } catch (error) {
+      // Handle errors
+      console.error('Error:', error);
+      replyElement.classList.remove('pulsing');
+
       // Update UI state to error with safe error handling
       try {
         if (window.uiStateManager && window.uiStateManager.states && window.uiStateManager.updateState) {
@@ -740,278 +1524,109 @@ function toggleRecording() {
       } catch (e) {
         console.warn('Error updating UI state:', e);
       }
-    }
-  }
-}
 
-// Event handler for speech recognition results
-r.onresult = async (e) => {
-  const transcript = e.results[e.results.length-1][0].transcript.trim();
-  document.getElementById('lastObjection').textContent = transcript;
-  
-  // If the transcript changed, generate a new response
-  if (transcript !== lastTranscript) {
-    lastTranscript = transcript;
-    await generateResponse(transcript);
-  }
-};
-
-// Render the history list
-function renderHistoryList() {
-  const historyList = document.getElementById('history-list');
-  historyList.innerHTML = '';
-  
-  // Display history items from newest to oldest
-  const sortedHistory = [...appState.responseHistory].reverse();
-  
-  sortedHistory.forEach(item => {
-    const historyItem = document.createElement('div');
-    historyItem.className = 'history-item';
-    
-    const objection = document.createElement('div');
-    objection.className = 'history-item-objection';
-    objection.textContent = '👂 ' + item.objection;
-    
-    const response = document.createElement('div');
-    response.className = 'history-item-response';
-    response.textContent = '💡 ' + item.response;
-    
-    const meta = document.createElement('div');
-    meta.className = 'history-item-meta';
-    
-    const timestamp = document.createElement('span');
-    timestamp.textContent = item.timestamp;
-    
-    const model = document.createElement('span');
-    // Friendly display names for models
-    let modelDisplay = item.model
-      .replace('gpt-4o-2024-08-06', 'GPT-4o')
-      .replace('gpt-4o-mini-2024-07-18', 'GPT-4o Mini');
-    
-    model.textContent = modelDisplay;
-    
-    meta.appendChild(timestamp);
-    meta.appendChild(model);
-    
-    historyItem.appendChild(objection);
-    historyItem.appendChild(response);
-    historyItem.appendChild(meta);
-    
-    historyList.appendChild(historyItem);
-  });
-}
-
-// Add a response to history
-function addToHistory(objection, response, model) {
-  const now = new Date();
-  const timestamp = now.toLocaleTimeString();
-  
-  // Create history item
-  const historyItem = {
-    objection,
-    response,
-    model,
-    timestamp
-  };
-  
-  // Add to history
-  appState.responseHistory.push(historyItem);
-  
-  // Limit history to 50 items
-  if (appState.responseHistory.length > 50) {
-    appState.responseHistory.shift();
-  }
-  
-  // Save to localStorage
-  localStorage.setItem('response_history', JSON.stringify(appState.responseHistory));
-  
-  // Update UI
-  renderHistoryList();
-}
-
-// Clear response history
-function clearResponseHistory() {
-  if (confirm('Are you sure you want to clear all response history? This cannot be undone.')) {
-    // Clear history in state
-    appState.responseHistory = [];
-    
-    // Clear from localStorage
-    localStorage.removeItem('response_history');
-    
-    // Update UI
-    renderHistoryList();
-    
-    // Show confirmation
-    const clearBtn = document.getElementById('clear-history');
-    const originalText = clearBtn.textContent;
-    clearBtn.textContent = 'Cleared!';
-    
-    setTimeout(() => {
-      clearBtn.textContent = originalText;
-    }, 1500);
-  }
-}
-
-// Function to generate a response using OpenAI API
-async function generateResponse(text) {
-  const replyElement = document.getElementById('reply');
-  
-  // Show loading indicator
-  replyElement.textContent = 'Thinking...';
-  replyElement.classList.add('pulsing');
-  
-  // Update UI state to processing with safe error handling
-  try {
-    if (window.uiStateManager && window.uiStateManager.states && window.uiStateManager.updateState) {
-      window.uiStateManager.updateState(window.uiStateManager.states.PROCESSING);
-    }
-  } catch (e) {
-    console.warn('Error updating UI state:', e);
-  }
-  
-  try {
-    // Get selected model
-    const model = appState.selectedModel;
-    
-    // Get system prompt
-    const systemPrompt = appState.systemPrompt;
-    
-    // Generate response using GitHub Inference API
-    const reply = await generateGitHubResponse(text, model, systemPrompt, replyElement);
-    
-    // Add to history after successful response
-    addToHistory(text, reply, model);
-    
-    // Update UI state back to listening if still recording with safe error handling
-    try {
-      if (window.uiStateManager && window.uiStateManager.states && window.uiStateManager.updateState) {
-        if (on) {
-          window.uiStateManager.updateState(window.uiStateManager.states.LISTENING);
-        } else {
-          window.uiStateManager.updateState(window.uiStateManager.states.READY);
+      // Show appropriate error message
+      if (error.message.includes('token') || error.message.includes('API key')) {
+        replyElement.textContent = '🔑 GitHub token missing or invalid. Click ⚙️ to set your GitHub token.';
+        setTimeout(showApiKeyDialog, 1000);
+      } else if (error.message.includes('rate') || error.message.includes('limit')) {
+        replyElement.textContent = '⏳ Rate limit exceeded. Please wait a moment and try again.';
+      } else if (error.message.includes('model')) {
+        replyElement.textContent = `⚠️ Model not available. The ${appState.selectedModel} model might not be accessible.`;
+        if (error.message && error.message.includes('Unknown model')) {
+          replyElement.textContent += `\n⚠️ The selected model is not supported by the backend. Please choose a different model.`;
         }
+      } else {
+        replyElement.textContent = '❌ Error: ' + error.message;
       }
-    } catch (e) {
-      console.warn('Error updating UI state:', e);
-    }
-    
-  } catch (error) {
-    // Handle errors
-    console.error('Error:', error);
-    replyElement.classList.remove('pulsing');
-    
-    // Update UI state to error with safe error handling
-    try {
-      if (window.uiStateManager && window.uiStateManager.states && window.uiStateManager.updateState) {
-        window.uiStateManager.updateState(window.uiStateManager.states.ERROR);
-      }
-    } catch (e) {
-      console.warn('Error updating UI state:', e);
-    }
-    
-    // Show appropriate error message
-    if (error.message.includes('token') || error.message.includes('API key')) {
-      replyElement.textContent = '🔑 GitHub token missing or invalid. Click ⚙️ to set your GitHub token.';
-      setTimeout(showApiKeyDialog, 1000);
-    } else if (error.message.includes('rate') || error.message.includes('limit')) {
-      replyElement.textContent = '⏳ Rate limit exceeded. Please wait a moment and try again.';
-    } else if (error.message.includes('model')) {
-      replyElement.textContent = `⚠️ Model not available. The ${appState.selectedModel} model might not be accessible.`;
-    } else {
-      replyElement.textContent = '❌ Error: ' + error.message;
     }
   }
-}
 
-// Function to generate response using GitHub Inference API
-async function generateGitHubResponse(text, model, systemPrompt, replyElement) {
-  try {
-    // Get GitHub token
-    const githubToken = localStorage.getItem('github_token');
-    
-    if (!githubToken) {
-      throw new Error('GitHub token missing');
-    }
-    
-    // GitHub Models API endpoint 
-    const endpoint = 'https://models.inference.ai.azure.com/chat/completions';
-    
-    // Make API request
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${githubToken}`
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: `Prospect said: "${text}". Reply with ONE persuasive rebuttal that's witty but professional. Keep it under 15 words.`
+  // Function to generate response using GitHub Inference API
+  async function generateGitHubResponse(text, model, systemPrompt, replyElement) {
+    try {
+      // Get GitHub token
+      const githubToken = localStorage.getItem('github_token');
+
+      if (!githubToken) {
+        throw new Error('GitHub token missing');
+      }
+
+      // GitHub Models API endpoint 
+      const endpoint = 'https://models.inference.ai.azure.com/chat/completions';
+
+      // Get uploaded files context
+      const filesContext = getUploadedFilesContext();
+      const enhancedSystemPrompt = systemPrompt + filesContext;
+
+      // Make API request
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${githubToken}`
+        },
+        body: JSON.stringify({
+          model: model.includes('/') ? model.split('/')[1] : model,
+          messages: [
+            {
+              role: 'system',
+              content: enhancedSystemPrompt
+            },
+            {
+              role: 'user',
+              content: `Prospect said: "${text}". Reply with ONE persuasive rebuttal that's witty but professional. Keep it under 15 words.`
+            }
+          ],
+          temperature: 1.0,
+          top_p: 1.0
+        })
+      });
+
+      // Handle errors
+      if (!response.ok) {
+        let errorMessage = response.statusText;
+        try {
+          const errorData = await response.json();
+          console.error("GitHub API error:", errorData);
+          if (errorData.error && errorData.error.message) {
+            errorMessage = errorData.error.message;
+          } else if (errorData.error) {
+            errorMessage = JSON.stringify(errorData.error);
+          } else if (errorData.message) {
+            errorMessage = errorData.message;
           }
-        ],
-        temperature: 1.0,
-        top_p: 1.0
-      })
-    });
-    
-    // Handle errors
-    if (!response.ok) {
-      let errorMessage = response.statusText;
-      try {
-        const errorData = await response.json();
-        console.error("GitHub API error:", errorData);
-        if (errorData.error && errorData.error.message) {
-          errorMessage = errorData.error.message;
-        } else if (errorData.error) {
-          errorMessage = JSON.stringify(errorData.error);
-        } else if (errorData.message) {
-          errorMessage = errorData.message;
+        } catch (e) {
+          console.error("Failed to parse error response:", e);
         }
-      } catch (e) {
-        console.error("Failed to parse error response:", e);
+        throw new Error(errorMessage);
       }
-      throw new Error(errorMessage);
-    }
-    
-    // Process successful response
-    const data = await response.json();
-    console.log("GitHub API response:", data);
-    
-    // GitHub API response format (same as OpenAI)
-    const reply = data.choices[0]?.message?.content || "No response from GitHub";
-    
-    // Remove loading indicator and show reply
-    replyElement.classList.remove('pulsing');
-    replyElement.textContent = reply;
-    
-    // Return the reply to be added to history
-    return reply;
-  } catch (error) {
-    console.error("GitHub API error:", error);
-    replyElement.classList.remove('pulsing');
-    replyElement.textContent = `❌ Error using GitHub: ${error.message}`;
-    throw error;
-  }
-}
 
-// Handle speech recognition errors and end events
-r.onerror = e => console.log('Speech error:', e);
-r.onend = () => {
-  if (on) {
-    // Auto-restart if recording should be on
-    r.start();
+      // Process successful response
+      const data = await response.json();
+      console.log("GitHub API response:", data);
+
+      // GitHub API response format (same as OpenAI)
+      const reply = data.choices[0]?.message?.content || "No response from GitHub";
+
+      // Remove loading indicator and show reply
+      replyElement.classList.remove('pulsing');
+      replyElement.textContent = reply;
+
+      // Return the reply to be added to history
+      return reply;
+    } catch (error) {
+      console.error("GitHub API error:", error);
+      replyElement.classList.remove('pulsing');
+      replyElement.textContent = `❌ Error using GitHub: ${error.message}`;
+      throw error;
+    }
   }
-};
 </script>
 
+<!-- Footer -->
 <footer class="footer">
-  <a href="https://myaiadvantage.com/" target="_blank" rel="noopener">Visit myaiadvantage.com</a>
+  <p>Powered by <a href="https://myaiadvantage.com/" target="_blank" rel="noopener">myaiadvantage.com</a></p>
 </footer>
 
 <!-- Include utils.js for UIStateManager and other utilities -->

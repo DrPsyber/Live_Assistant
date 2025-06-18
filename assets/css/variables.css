@@ -1,26 +1,50 @@
 /* CSS Custom Properties and Theme Variables */
 :root {
+  /* Typography */
+  --normal-font: 'Prompt', sans-serif;
+  --mono-font: 'Courier New', monospace;
+
   /* Primary Brand Colors */
   --beige: #E3E2E3;
-  --lighter-gray: #454554;
-  --darker-gray: #343541;
-  --smart-green: #0EA27F;
+  --black: #000000;
+  --dark-gray: #333333;
+  --dark-green: #77AA00;
+  --dark-red: #BB1100;
+  --light-gray: #BBBBBB;
+  --light-green: #77FF00;
+  --light-red: #FF1100;
+  --transparent: rgba(0, 0, 0, 0);
+  --white: #FFFFFF;
   
   /* Secondary Brand Colors */
-  --action-yellow: #FEDF0A;
-  --smart-blue: #3536DF;
-  --creative-purple: #41297D;
-  --rebel-orange: #FE524E;
+  --action-yellow: #FFFF22;
+  --creative-purple: #EE00FF;
+  --rebel-orange: #FF5500;
+  --smart-blue: #2222FF;
   
   /* UI Mapping */
-  --bg-color: var(--beige);
-  --text-color: var(--darker-gray);
-  --primary-color: var(--smart-green);
-  --primary-hover: var(--creative-purple);
-  --secondary-bg: #f8f9fa;
-  --border-color: var(--lighter-gray);
-  --shadow-color: rgba(0, 0, 0, 0.1);
   --accent-color: var(--action-yellow);
-  --radius: 12px;
-  --inner-radius: 8px;
+  --border-color: var(--transparent);
+  --inner-radius: .5rem;
+  --outer-radius: 1rem;
+  --pri-bg-color: var(--light-gray);
+  --pri-text-color: var(--white);
+  --primary-color: var(--dark-gray);
+  --primary-hover: var(--creative-purple);
+  --sec-bg-color: var(--white);
+  --sec-text-color: var(--dark-gray);
+  --shadow-color: var(--black);
+
+  /* Button Colors */
+  --red-btn-bg: var(--dark-red);
+  --red-btn-border: linear-gradient(var(--dark-red), var(--light-red));
+  --red-btn-hover-bg: var(--light-red);
+  --green-btn-bg: var(--dark-green);
+  --green-btn-border: linear-gradient(var(--dark-green), var(--light-green));
+  --green-btn-hover-bg: var(--light-green);
+
+  /* Shadows */
+  --shadow-small: 0 1px 2px var(--shadow-color);
+  --shadow-medium: 0 4px 8px var(--shadow-color);
+  --shadow-large: 0 8px 16px var(--shadow-color);
 }

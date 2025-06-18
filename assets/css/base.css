@@ -1,33 +1,28 @@
 /* Base Typography and Element Styles */
-body { 
+body {
+  background-color: var(--pri-bg-color);
+  color: var(--pri-text-color);
   font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif; 
+  margin: 1rem auto; 
   max-width: 650px; 
-  margin: 20px auto; 
-  line-height: 1.6; 
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition: all 0.3s ease;
-  padding: 0 20px;
-  font-size: 15px;
-}
-
-h2, h3 {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 600;
-  color: var(--primary-color);
+  scrollbar-color: var(--pri-bg-color) var(--sec-bg-color);
+  scrollbar-width: thin;
+  /* text-shadow: var(--shadow-small); */
+  transition: all 0.5s ease;
 }
 
 pre { 
-  background: var(--secondary-bg); 
-  padding: 15px; 
-  border-radius: var(--inner-radius); 
+  color: var(--sec-text-color);
+  font-size: 1rem;
+  line-height: 1rem;
+  margin-block-start: 0rem;
+  padding: 1rem; 
+  transition: all 0.5s ease;
   white-space: pre-wrap; 
-  margin-top: 15px;
-  border: 1px solid var(--border-color);
-  transition: background-color 0.3s;
-  font-size: 14px;
-  line-height: 1.6;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+div h2 {
+  margin-top: 0rem;
 }
 
 /* Utility Classes */
@@ -36,23 +31,5 @@ pre {
 }
 
 .info-text {
-  font-size: 14px;
-  opacity: 0.8;
+  font-size: .8rem;
 }
-
-/* Status Dot Utility */
-#status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  display: inline-block;
-  background: white; /* default - white for contrast inside button */
-  margin-right: 8px;
-  position: relative;
-  top: -1px;
-  transition: background-color 0.3s ease;
-}
-
-#status-dot.listening  { background: var(--action-yellow); }
-#status-dot.processing { background: var(--primary-color); }
-#status-dot.error      { background: var(--rebel-orange); }

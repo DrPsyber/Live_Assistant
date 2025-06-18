@@ -24,6 +24,279 @@ window.getGitHubClient = function() {
   return githubClient;
 };
 
+// --- BEGIN: Transcription and AI Response Core Features ---
+
+// Helper: Get OpenAI API key from localStorage
+function getOpenAIApiKey() {
+  return localStorage.getItem('openai_api_key') || '';
+}
+
+// Helper: Save OpenAI API key to localStorage
+function saveOpenAIApiKey(key) {
+  if (key && key.startsWith('sk-')) {
+    localStorage.setItem('openai_api_key', key);
+    return true;
+  }
+  return false;
+}
+
+// Helper: Show prompt for OpenAI API key if missing
+function promptForOpenAIApiKey() {
+  const modal = document.createElement('div');
+  Object.assign(modal.style, {
+    position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000
+  });
+  const modalContent = document.createElement('div');
+  Object.assign(modalContent.style, {
+    backgroundColor: 'white', padding: '20px', borderRadius: '5px', width: '80%', maxWidth: '500px'
+  });
+  const heading = document.createElement('h3');
+  heading.textContent = 'Enter your OpenAI API Key';
+  heading.style.marginBottom = '15px';
+  const info = document.createElement('p');
+  info.innerHTML = 'Your OpenAI API key is stored locally in your browser and never sent anywhere except OpenAI.';
+  info.style.fontSize = '14px';
+  info.style.marginBottom = '15px';
+  const input = document.createElement('input');
+  input.type = 'password';
+  input.placeholder = 'sk-...';
+  input.style.width = '100%';
+  input.style.padding = '8px';
+  input.style.marginBottom = '15px';
+  input.style.borderRadius = '4px';
+  input.style.border = '1px solid #ccc';
+  input.value = getOpenAIApiKey();
+  const buttonContainer = document.createElement('div');
+  buttonContainer.style.display = 'flex';
+  buttonContainer.style.justifyContent = 'space-between';
+  const saveButton = document.createElement('button');
+  saveButton.textContent = 'Save Key';
+  Object.assign(saveButton.style, { padding: '8px 16px', backgroundColor: '#0EA27F', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' });
+  const cancelButton = document.createElement('button');
+  cancelButton.textContent = 'Cancel';
+  Object.assign(cancelButton.style, { padding: '8px 16px', backgroundColor: '#f8f9fa', color: '#333', border: '1px solid #ccc', borderRadius: '4px', cursor: 'pointer' });
+  const statusMsg = document.createElement('p');
+  statusMsg.style.marginTop = '10px';
+  statusMsg.style.fontSize = '14px';
+  saveButton.addEventListener('click', () => {
+    const key = input.value.trim();
+    if (saveOpenAIApiKey(key)) {
+      document.body.removeChild(modal);
+    } else {
+      statusMsg.textContent = 'Invalid OpenAI API key. It should start with "sk-"';
+      statusMsg.style.color = 'red';
+    }
+  });
+  cancelButton.addEventListener('click', () => {
+    document.body.removeChild(modal);
+  });
+  modal.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.body.removeChild(modal);
+  });
+  buttonContainer.appendChild(cancelButton);
+  buttonContainer.appendChild(saveButton);
+  modalContent.appendChild(heading);
+  modalContent.appendChild(info);
+  modalContent.appendChild(input);
+  modalContent.appendChild(buttonContainer);
+  modalContent.appendChild(statusMsg);
+  modal.appendChild(modalContent);
+  document.body.appendChild(modal);
+  setTimeout(() => input.focus(), 0);
+}
+
+// --- Speech Recognition Setup ---
+let recognition = null;
+let recognizing = false;
+let lastTranscript = '';
+
+function setupSpeechRecognition() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert('Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.');
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    recognizing = true;
+    document.getElementById('toggle').classList.add('active');
+  };
+  recognition.onend = () => {
+    recognizing = false;
+    document.getElementById('toggle').classList.remove('active');
+  };
+  recognition.onerror = (event) => {
+    recognizing = false;
+    document.getElementById('toggle').classList.remove('active');
+    alert('Speech recognition error: ' + event.error);
+  };
+  recognition.onresult = async (event) => {
+    console.log('[app.js] recognition.onresult fired');
+    const transcript = event.results[event.results.length - 1][0].transcript.trim();
+    console.log('[app.js] Transcript:', transcript);
+    lastTranscript = transcript;
+    document.getElementById('lastObjection').textContent = transcript;
+    await generateAIResponse(transcript);
+  };
+}
+
+// --- AI Response Logic ---
+async function generateAIResponse(transcript) {
+  const replyElem = document.getElementById('reply');
+  if (!replyElem) {
+    console.error('Reply element not found in DOM.');
+    return;
+  }
+  replyElem.textContent = 'Thinking...';
+
+  // Get GitHub token from localStorage
+  const githubToken = localStorage.getItem('github_token');
+  if (!githubToken) {
+    if (typeof promptForToken === 'function') {
+      promptForToken();
+    }
+    replyElem.textContent = '🔑 GitHub token missing. Click ⚙️ to set your GitHub token.';
+    return;
+  }
+
+  // Get system prompt and model from UI/appState if available
+  let systemPrompt =
+    'You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.';
+  let model = 'gpt-4';
+
+  // Try to get from appState (if available)
+  if (window.appState) {
+    if (window.appState.systemPrompt) systemPrompt = window.appState.systemPrompt;
+    if (window.appState.selectedModel) {
+      console.log('[DEBUG] Assigning model from appState.selectedModel:', window.appState.selectedModel);
+      // Strip provider prefix if present
+      if (window.appState.selectedModel.includes('/')) {
+        model = window.appState.selectedModel.split('/')[1];
+      } else {
+        model = window.appState.selectedModel;
+      }
+    }
+  } else {
+    // Try to get from DOM (settings dialog)
+    const sysPromptElem = document.getElementById('system-prompt-dialog');
+    if (sysPromptElem && sysPromptElem.value) systemPrompt = sysPromptElem.value;
+    const modelSelect = document.getElementById('model-select');
+    if (modelSelect && modelSelect.value) {
+      // Strip provider prefix if present
+      if (modelSelect.value.includes('/')) {
+        model = modelSelect.value.split('/')[1];
+      } else {
+        model = modelSelect.value;
+      }
+    }
+  }
+
+  // Optionally, add uploaded files context if available
+  let filesContext = '';
+  try {
+    if (typeof getUploadedFilesContext === 'function') {
+      filesContext = getUploadedFilesContext();
+    }
+  } catch (e) {
+    console.warn('getUploadedFilesContext() failed:', e);
+  }
+  const enhancedSystemPrompt = systemPrompt + (filesContext || '');
+
+  try {
+    console.log('[DEBUG] About to fetch https://models.inference.ai.azure.com/chat/completions');
+    console.log('[DEBUG] Model:', model);
+    console.log('[DEBUG] window.appState.selectedModel:', window.appState?.selectedModel);
+    console.log('[DEBUG] Request body:', {
+      model,
+      messages: [
+        { role: 'system', content: enhancedSystemPrompt },
+        { role: 'user', content: `Prospect said: "${transcript}". Reply with ONE persuasive rebuttal that's witty but professional. Keep it under 15 words.` }
+      ],
+      temperature: 1.0,
+      top_p: 1.0
+    });
+    const response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${githubToken}`
+      },
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: enhancedSystemPrompt },
+          { role: 'user', content: `Prospect said: "${transcript}". Reply with ONE persuasive rebuttal that's witty but professional. Keep it under 15 words.` }
+        ],
+        temperature: 1.0,
+        top_p: 1.0
+      })
+    });
+    console.log('[DEBUG] Response status:', response.status, response.statusText);
+
+    if (!response.ok) {
+      let errorMessage = response.statusText;
+      try {
+        const errorData = await response.json();
+        console.error('[DEBUG] Error response JSON:', errorData);
+        if (errorData.error && errorData.error.message) {
+          errorMessage = errorData.error.message;
+        } else if (errorData.error) {
+          errorMessage = JSON.stringify(errorData.error);
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch (e) {
+        // Ignore JSON parse error
+      }
+      throw new Error(errorMessage);
+    }
+
+    const data = await response.json();
+    console.log('[DEBUG] Success response JSON:', data);
+    const aiText = data.choices?.[0]?.message?.content?.trim() || 'No response from GitHub';
+    replyElem.textContent = aiText;
+  } catch (err) {
+    console.error('AI API error:', err);
+    alert('[DEBUG] AI API error: ' + err.message);
+    if (err.message.includes('token')) {
+      replyElem.textContent = '🔑 GitHub token missing or invalid. Click ⚙️ to set your GitHub token.';
+    } else if (err.message.includes('rate') || err.message.includes('limit')) {
+      replyElem.textContent = '⏳ Rate limit exceeded. Please wait a moment and try again.';
+    } else if (err.message.includes('model')) {
+      replyElem.textContent = `⚠️ Model not available. The ${model} model might not be accessible.`;
+    } else {
+      replyElem.textContent = '❌ Error: ' + err.message;
+    }
+  }
+}
+
+// --- UI Event Wiring ---
+document.addEventListener('DOMContentLoaded', () => {
+  setupSpeechRecognition();
+  const toggleButton = document.getElementById('toggle');
+  if (toggleButton) {
+    toggleButton.addEventListener('click', () => {
+      console.log('[app.js] Toggle button clicked');
+      if (!recognition) return;
+      if (recognizing) {
+        console.log('[app.js] Stopping recognition');
+        recognition.stop();
+      } else {
+        console.log('[app.js] Starting recognition');
+        console.log('[app.js] Calling recognition.start()');
+        recognition.start();
+      }
+    });
+  }
+});
+
+// --- END: Transcription and AI Response Core Features ---
+
 document.addEventListener('DOMContentLoaded', () => {
   // Check if the main speech recognition is initialized
   const speechRecognitionExists = window.SpeechRecognition || window.webkitSpeechRecognition;

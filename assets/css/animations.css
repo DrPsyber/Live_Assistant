@@ -1,8 +1,8 @@
 /* Animations and Transitions */
 @keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
+  0% { opacity: 0; }
+  50% { opacity: .5; }
+  100% { opacity: 1; }
 }
 
 .pulsing {
@@ -15,15 +15,5 @@
 }
 
 #reply:not(:empty) {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-/* Additional animation utilities */
-.visualizer-bar {
-  width: 3px;
-  display: inline-block;
-  margin: 0 1px;
-  height: 5px;
-  background-color: var(--primary-color);
-  transition: height 0.1s ease-out;
+  animation: all 0.5s ease;
 }

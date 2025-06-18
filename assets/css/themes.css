@@ -1,15 +1,25 @@
 /* Dark Mode Theme Styles */
 .dark-mode {
-  --bg-color: var(--darker-gray);
-  --text-color: var(--beige);
-  --primary-color: var(--smart-green);
-  --primary-hover: var(--smart-blue);
-  --secondary-bg: var(--lighter-gray);
-  --border-color: #2d2d2d;
-  --shadow-color: rgba(0, 0, 0, 0.5);
+
+  /* UI Mapping */
+  --pri-bg-color: var(--dark-gray);
+  --sec-bg-color: var(--light-gray);
+  --pri-text-color: var(--white);
+  --sec-text-color: var(--black);
+  --border-color: var(--transparent);
+  --primary-color: var(--dark-gray);
+  --primary-hover: var(--light-gray);
+  --shadow-color: var(--black);
   --accent-color: var(--action-yellow);
+  --outer-radius: 1rem;
+  --inner-radius: .5rem;
+
+  /* Shadows */
+  --shadow-small: 0 1px 2px var(--shadow-color);
+  --shadow-medium: 0 2px 4px var(--shadow-color);
+  --shadow-large: 0 4px 8px var(--shadow-color);
 }
 
-.dark-mode .logo {
+.dark-mode .logo{
   filter: invert(1);
 }
