@@ -16,8 +16,6 @@ Thumbs.db
 # User Settings
 .vscode/
 .claude/
-.github/copilot-instructions.md
-
 
 # Logs
 logs/
