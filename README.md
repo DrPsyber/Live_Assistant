@@ -1,26 +1,28 @@
-# Live Assistant
+# **Live Assist**
 
-A real-time speech transcription and AI-powered response application that helps you handle objections and generate comebacks using OpenAI's API.
+A **real-time** speech transcription and **AI-powered response** web app that helps you handle objections and generate comebacks using **GitHub's API**.
 
-## Features
+### Features
 
-- 🎤 Real-time speech recognition
-- 🤖 AI-powered response generation using OpenAI GPT models
+- 🎤 **Real-time speech recognition**
+- 🤖 **AI-powered** response generation using **GitHub's API**
+- 💬 **Customizable prompts** for different scenarios
+- 📜 **History tracking** of objections and response
+- 📄 File upload for AI context
 - 🎨 Dark/light theme support
-- 📝 Preset management for different response styles
+- 📝 **Preset management** for different response styles
 - 📊 Audio visualization during recording
-- 📈 Response history tracking
 - ⌨️ Keyboard shortcuts for quick access
 
-## Requirements
+### Requirements
 
-- Modern web browser (Chrome, Edge, or Safari recommended for speech recognition)
-- OpenAI API key
+- Modern web browser (`Chrome`, `Edge`, `Safari`)
+- GitHub API key
 - HTTPS connection (required for speech recognition)
 
-## Quick Start
+# Quick Start
 
-### Option 1: Using Python's Built-in Server (Recommended)
+## Option 1: Using Python's Built-in Server (Recommended)
 
 1. **Navigate to the project directory:**
    ```bash
@@ -47,7 +49,7 @@ A real-time speech transcription and AI-powered response application that helps 
    http://127.0.0.1:8000
    ```
 
-### Option 2: Using Node.js with HTTPS
+## Option 2: Using Node.js with HTTPS
 
 1. **Install a simple HTTPS server globally:**
    ```bash
@@ -81,59 +83,76 @@ A real-time speech transcription and AI-powered response application that helps 
    
    **Note:** You'll need to accept the security warning for the self-signed certificate.
 
-### Option 3: Using Live Server Extension (VS Code)
+## Option 3: Using Live Server Extension (VS Code)
 
 If you're using VS Code:
 
 1. Install the "Live Server" extension
 2. Right-click on `index.html`
-3. Select "Open with Live Server"
+3. Select `Open with Live Server`
 4. The application will open in your default browser
 
-## Configuration
+# Configuration
 
-### Setting up OpenAI API Key
+### Setting up GitHub API Key
+> [!IMPORTANT]  
+> You need a GitHub account to generate an API key.
 
-1. Get your OpenAI API key from [OpenAI's dashboard](https://platform.openai.com/api-keys)
-2. Click the settings gear (⚙️) button in the app
-3. Enter your API key (it starts with `sk-`)
+1. Get your GitHub API key from [GitHub Developer Settings](https://github.com/settings/tokens)
+   - Make sure to select the `copilot` scope for your key.
+2. Click the settings gear `⚙️` button in the app
+3. Enter your API key (it starts with `ghp_`)
 4. Click "Save"
 
 Your API key is stored locally in your browser and is never sent anywhere except to OpenAI's servers.
 
-## Usage
+# Usage
 
-### Basic Operation
+## Basic Operation
 
-1. **Start Listening:** Click the "🎤 Start Listening" button
+1. **Start Listening:** Click the `🎤 Start Listening` button
 2. **Speak:** Say your objection or statement
 3. **Get Response:** The AI will generate a response automatically
-4. **Stop Listening:** Click "🛑 Stop Listening" when done
+4. **Stop Listening:** Click `🛑 Stop Listening` when done
 
-### Keyboard Shortcuts
+## Keyboard Shortcuts
 
-- **Spacebar:** Toggle recording (when not in input fields)
-- **Alt + H:** Show objection history
-- **Alt + K:** Open API key dialog
-- **Escape:** Close any open dialog
+- **`Spacebar`:** Toggle recording (when not in input fields)
+- **`Alt` + `H`:** Show objection history
+- **`Alt` + `K`:** Open API key dialog
+- **`[Esc]ape`:** Close any open dialog
 
-### Prompt Presets
+## Prompt Presets
 
-The app includes several preset prompts:
+The app includes these default presets:
 
-- **Executive Reframer:** For C-suite communication and reframing challenges
-- **Negotiation Expert:** For sales and negotiation scenarios
+- `Executive Reframer`: For C-suite communication and reframing challenges
+- `Negotiation Expert`: For sales and negotiation scenarios
 
 You can also create custom presets by:
 1. Editing the prompt text
-2. Clicking "Save As+"
+2. Clicking `💾`
 3. Entering a name for your preset
 
 ### Models
 
-Choose between different OpenAI models:
-- **GPT-4o (Latest):** Most capable model
-- **GPT-4o Mini:** Faster and more cost-effective
+Many LLM's to choose from including (but not limited to):
+
+| **Vendor** | **Model**   | **Variant** |
+|------------|-------------|-------------|
+| Deepseek   | Deepseek    | `R1`, `V3` |
+| Meta       | Llama       | `3`, `3.1`, `3.2`, `3.3`, `4` |  
+| Microsoft  | Phi 3       | `Medium`, `Small`, `Mini` |
+| Microsoft  | Phi 4       | `Regular`, `Mini`, `Reasoning` |
+| Mistral    | Mistral     | `Large`, `Medium`, `Small`, `Nemo`, `Ministral`, `Codestral` |
+| OpenAI     | GPT-4.1     | `Regular`, `Mini`, `Nano` |
+| OpenAI     | GPT-4o      | `Regular`, `Mini` |
+| OpenAI     | GPT-o1      | `Regular`, `Mini`, `Preview` |
+| OpenAI     | GPT-o3      | `Regular`, `Mini` |
+| OpenAI     | GPT-04      | `Mini` |
+| xAI        | Grok 3      | `Regular`, `Mini` |
+
+
 
 ## Troubleshooting
 
@@ -182,7 +201,3 @@ Transcribe_n_Vibe/
 - The app runs entirely client-side
 - No data is sent to any servers except OpenAI's API
 - Use HTTPS in production environments
-
-## License
-
-This project is for educational and personal use.
