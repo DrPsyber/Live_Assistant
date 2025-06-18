@@ -17,7 +17,7 @@ Thumbs.db
 .vscode/
 .claude/
 .github/copilot-instructions.md
-.gitattributes
+
 
 # Logs
 logs/
@@ -35,14 +35,11 @@ out/
 coverage/
 
 # Test files
-tests/
-tests/*
+.tests/
 
 # Need to move elsewhere
 documentation/
-CLAUDE.md
-CONSOLIDATION_SUMMARY.md
-FILE_UPLOAD_SUMMARY.md
 
 # MCP Servers
 .mcp_servers/
+.gitattributes
