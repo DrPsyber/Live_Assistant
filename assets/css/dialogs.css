@@ -77,7 +77,18 @@
   display: flex;
   font-size: 1rem;
   gap: .5rem;
-  justify-content: flex-end;
+  justify-content: right;
+  margin-left: 1rem;
+}
+
+#dialog-button-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+#dialog-button-row button {
+  padding: 0px;
 }
 
 /* Model Selection Styles */
@@ -166,29 +177,29 @@ div #label-container .flex-row {
 
 .preset-list {
   overflow-y: auto;
+  margin-bottom: .5rem;
+  border-radius: var(--inner-radius);
+  background-color: var(--sec-bg-color);
+  box-shadow: inset var(--shadow-small);
 }
 
 .preset-item {
-  align-items: center;
-  background-color: var(--pri-bg-color);
-  border-radius: var(--inner-radius);
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1rem;
   padding: .5rem;
 }
 
 .preset-actions {
   display: flex;
-  gap: .2rem;
+  justify-content: right;
+  margin-left: 1rem
 }
 
 .preset-actions button {
-  background-color: var(--pri-bg-color);
-  border: none;
-  color: var(--pri-text-color);
-  font-size: 0.8rem;
-  padding: .2rem .8rem;
+  background-color: var(--transparent);
+  border: 2px solid var(--transparent);
+  padding: 0px;
+  margin-left: 0px;
 }
 
 /* File Upload Styles */

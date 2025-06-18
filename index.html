@@ -73,12 +73,12 @@
   <!-- Preset Management Dialog -->
   <div id="preset-dialog" class="dialog hidden">
     <div class="dialog-content">
-      <h2>Manage Prompt Presets</h2>
+      <h2>Manage Presets</h2>
       <div id="preset-list" class="preset-list">
         <!-- Presets will be loaded here -->
       </div>
       <div class="dialog-buttons">
-        <button id="preset-dialog-close">↩️</button>
+        <button id="preset-dialog-close" title="Go Back">↩️</button>
       </div>
     </div>
   </div>
@@ -87,17 +87,19 @@
   <div id="new-preset-dialog" class="dialog hidden">
     <div class="dialog-content">
       <h2>Save as New Preset</h2>
-      <label for="new-preset-name">Preset Name:</label>
-      <input type="text" id="new-preset-name" placeholder="Enter a name for this preset">
-      <div class="dialog-buttons">
-        <button id="new-preset-cancel">↩️</button>
-        <button id="new-preset-save">✅</button>
+      <div id="new-preset-name-row" class="flex-row">
+        <label for="new-preset-name">Preset Name:</label>
+        <input type="text" id="new-preset-name" placeholder="Enter a name for this preset">
       </div>
-      <p id="new-preset-status"></p>
+      <div id="new-preset-button-row" class="flex-row">
+        <p id="new-preset-status"></p>
+        <div class="dialog-buttons">
+          <button id="new-preset-save">✅</button>
+          <button id="new-preset-cancel">↩️</button>
+        </div>
+      </div>
     </div>
   </div>
-
-
 
   <!-- Settings Dialog -->
   <div id="settings-dialog" class="dialog hidden">
@@ -135,8 +137,8 @@
             </select>
           </div>
           <div class="preset-buttons">
-            <button id="save-as-preset-dialog" title="Save as new preset">💾</button>
-            <button id="manage-presets-dialog" title="Manage presets">🍔</button>
+            <button id="save-as-preset-dialog" title="Save New">💾</button>
+            <button id="manage-presets-dialog" title="Manage Presets">💼</button>
           </div>
         </div>
       </div>
@@ -151,7 +153,7 @@
           <div class="flex-spacer" style="flex:1;"></div>
           <input type="file" id="file-upload-input" multiple
             accept=".txt,.md,.json,.csv,.log,.js,.ts,.html,.css,.py,.java,.cpp,.c,.h" />
-          <button id="clear-btn" title="Clear all uploaded files">❌</button>
+          <button id="clear-btn" title="Clear All">❌</button>
         </div>
         <div id="uploaded-files-list" class="uploaded-files-list"></div>
       </div>
@@ -164,8 +166,8 @@
       <div id="dialog-button-row" class="flex-row">
         <div id="api-key-status"></div>
         <div class="flex-spacer" style="flex:1;"></div>
-        <button id="api-key-save">✅</button>
-        <button id="api-key-cancel">↩️</button>
+        <button id="api-key-save" title="Apply Changes">✅</button>
+        <button id="api-key-cancel" title="Go Back">↩️</button>
       </div>
 
     </div>
@@ -838,6 +840,85 @@ console.log('[DEBUG] index.html script block loaded');
   }
 
   // Preset management functions
+  /**
+   * Creates a delete button with proper accessibility, error handling, and UX
+   * @param {string} presetId - The ID of the preset to delete
+   * @param {string} presetName - The name of the preset for confirmation dialog
+   * @returns {HTMLButtonElement} The configured delete button
+   */
+  function createDeleteButton(presetId, presetName) {
+    const deleteBtn = document.createElement('button');
+    
+    // Enhanced accessibility and UX
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.textContent = '🗑️';
+    deleteBtn.setAttribute('aria-label', `Delete ${presetName}`);
+    deleteBtn.setAttribute('data-preset-id', presetId);
+    deleteBtn.setAttribute('data-preset-name', presetName);
+    
+    // Enhanced tooltip with context
+    deleteBtn.title = `Delete ${presetName}`;
+    
+    // Don't allow deleting the default presets with enhanced feedback
+    if (['executive-reframer', 'negotiation'].includes(presetId)) {
+      deleteBtn.disabled = true;
+      deleteBtn.classList.add('disabled');
+      deleteBtn.title = 'Cannot delete default presets';
+      deleteBtn.setAttribute('aria-disabled', 'true');
+    } else {
+      // Enhanced event handler with error handling and better UX
+      deleteBtn.addEventListener('click', function handleDeleteClick(event) {
+        try {
+          // Prevent event bubbling
+          event.stopPropagation();
+          
+          // Visual feedback on click
+          deleteBtn.classList.add('clicked');
+          setTimeout(() => deleteBtn.classList.remove('clicked'), 150);
+          
+          // Enhanced confirmation with more context
+          const confirmMessage = `Are you sure you want to delete ${presetName}?\n\nThis action cannot be undone.`;
+          
+          if (confirm(confirmMessage)) {
+            // Provide immediate visual feedback
+            deleteBtn.disabled = true;
+            deleteBtn.textContent = '⏳';
+            deleteBtn.title = 'Deleting...';
+            
+            // Call delete function with error handling
+            try {
+              deletePreset(presetId);
+            } catch (error) {
+              console.error('Error deleting preset:', error);
+              
+              // Restore button state on error
+              deleteBtn.disabled = false;
+              deleteBtn.textContent = '🗑️';
+              deleteBtn.title = `Delete ${presetName}`;
+              
+              // Show user-friendly error message
+              alert(`Failed to delete preset ${presetName}. Please try again.`);
+            }
+          }
+        } catch (error) {
+          console.error('Error in delete button click handler:', error);
+          alert('An unexpected error occurred. Please refresh the page and try again.');
+        }
+      });
+      
+      // Enhanced keyboard accessibility
+      deleteBtn.addEventListener('keydown', function handleKeyDown(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          deleteBtn.click();
+        }
+      });
+    }
+    
+    return deleteBtn;
+  }
+
   function renderPresetList() {
     const presetList = document.getElementById('preset-list');
     presetList.innerHTML = '';
@@ -855,22 +936,16 @@ console.log('[DEBUG] index.html script block loaded');
       actions.className = 'preset-actions';
 
       const loadBtn = document.createElement('button');
-      loadBtn.textContent = 'Load';
+      loadBtn.textContent = '📂';
+      loadBtn.title = `Load ${preset.name}`;
       loadBtn.addEventListener('click', () => {
         loadPreset(id);
         hidePresetManagerDialog();
       });
 
-      const deleteBtn = document.createElement('button');
-      deleteBtn.textContent = 'Delete';
+      const deleteBtn = createDeleteButton(id, preset.name);
 
-      // Don't allow deleting the default presets
-      if (['executive-reframer', 'negotiation'].includes(id)) {
-        deleteBtn.disabled = true;
-        deleteBtn.title = 'Cannot delete default presets';
-      } else {
-        deleteBtn.addEventListener('click', () => deletePreset(id));
-      }
+      // All delete button logic is now handled in createDeleteButton function
 
       actions.appendChild(loadBtn);
       actions.appendChild(deleteBtn);
@@ -1204,7 +1279,7 @@ console.log('[DEBUG] index.html script block loaded');
       // Check file size (limit to 1MB per file)
       if (file.size > 1024 * 1024) {
         if (status) {
-          status.textContent = `File "${file.name}" is too large. Maximum size is 1MB.`;
+          status.textContent = `${file.name} is too large. Maximum size is 1MB.`;
           status.style.color = '#dc3545';
         }
         return;
@@ -1232,7 +1307,7 @@ console.log('[DEBUG] index.html script block loaded');
         updateClearButtonState();
 
         if (status) {
-          status.textContent = `File "${file.name}" uploaded successfully!`;
+          status.textContent = `${file.name} uploaded successfully!`;
           status.style.color = '#28a745';
           setTimeout(() => {
             status.textContent = '';
@@ -1242,7 +1317,7 @@ console.log('[DEBUG] index.html script block loaded');
 
       reader.onerror = function () {
         if (status) {
-          status.textContent = `Error reading file "${file.name}"`;
+          status.textContent = `Error reading ${file.name}`;
           status.style.color = '#dc3545';
         }
       };

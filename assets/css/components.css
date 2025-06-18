@@ -7,6 +7,7 @@ button {
   font-size: 1rem;
   text-shadow: var(--shadow-small);
   transition: all 0.5s ease;
+  padding: 0px;
 }
 
 button:hover {
@@ -68,6 +69,7 @@ button:hover {
   background-color: var(--red-btn-bg);
   border-color: var(--red-btn-border);
   color: var(--pri-text-color);
+  padding: .25rem;
   z-index: 1000;
 }
 
@@ -195,25 +197,45 @@ textarea {
 
 /* Preset Controls */
 .preset-controls {
-  align-items: center;
+  align-items: right;
   display: flex;
-  gap: .5rem;
+  gap: 0px;
 }
 
 .preset-controls button {
-  font-size: .8rem;
+  font-size: 1rem;
 }
 
 .preset-buttons button {
-  padding: .1rem;
+  padding: 0rem;
 }
 
 #save-as-preset {
-  font-size: .8rem;
+  font-size: 1rem;
 }
 
 #manage-presets {
-  font-size: .8rem;
+  font-size: 1rem;
+}
+
+#new-preset-name-row {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+#new-preset-button-row {
+  display: flex;
+  justify-content: space-right;
+  margin-bottom: 0rem;
+}
+
+#new-preset-status {
+  font-size: .6rem;
+  color: var(--dark-green);
+  margin: 0px;
 }
 
 /* Additional animation utilities */
@@ -233,4 +255,78 @@ textarea {
   justify-content: center;
   margin-left: 0;
   width: stretch;
+}
+
+/* Enhanced Delete Button Styles */
+.delete-btn {
+  background-color: var(--transparent);
+  border: 2px solid var(--transparent);
+  border-radius: var(--inner-radius);
+  color: var(--sec-text-color);
+  cursor: pointer;
+  font-size: 1rem;
+  text-shadow: var(--shadow-small);
+  transition: all 0.5s ease;
+  user-select: none;
+}
+
+.delete-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  text-shadow: var(--shadow-medium);
+}
+
+.delete-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.delete-btn:disabled,
+.delete-btn.disabled {
+  background-color: var(--transparent);
+  border-color: var(--transparent);
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  text-shadow: none;
+}
+
+.delete-btn:focus {
+  outline: 2px solid rgba(220, 53, 69, 0.5);
+  outline-offset: 2px;
+}
+
+.delete-btn:focus-visible {
+  outline: 2px solid rgba(220, 53, 69, 0.7);
+  outline-offset: 2px;
+}
+
+/* Preset item styling to work with enhanced buttons */
+.preset-item {
+  align-items: right;
+  display: flex;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.preset-item:hover {
+  background-color: var(--list-item-hover);
+}
+
+.preset-actions {
+  display: flex;
+  align-items: right;
+}
+
+.preset-name {
+  flex: 1;
+  color: var(--sec-text-color);
+}
+
+/* Loading state for delete button */
+.delete-btn:disabled[title*="Deleting"] {
+  animation: deleteButtonPulse 1s infinite;
+}
+
+@keyframes deleteButtonPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.8; }
 }

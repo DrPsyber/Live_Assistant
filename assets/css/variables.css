@@ -33,6 +33,7 @@
   --primary-hover: var(--creative-purple);
   --sec-bg-color: var(--white);
   --sec-text-color: var(--dark-gray);
+  --list-item-hover: rgba(0, 0, 0, 0.1);
   --shadow-color: var(--black);
 
   /* Button Colors */
