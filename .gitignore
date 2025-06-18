@@ -1,0 +1,48 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# User Settings
+.vscode/
+.claude/
+.github/copilot-instructions.md
+.gitattributes
+
+# Logs
+logs/
+*.log
+
+# Certificates
+certs/
+certs/*.pem
+certs/*.key
+
+# Build outputs
+dist/
+build/
+out/
+coverage/
+
+# Test files
+tests/
+tests/*
+
+# Need to move elsewhere
+documentation/
+CLAUDE.md
+CONSOLIDATION_SUMMARY.md
+FILE_UPLOAD_SUMMARY.md
+
+# MCP Servers
+.mcp_servers/

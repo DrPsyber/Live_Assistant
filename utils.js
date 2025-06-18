@@ -1,3 +1,4 @@
+console.log('[DEBUG] utils.js loaded');
 /**
  * Utility functions for the Comeback Generator application
  */
@@ -108,6 +109,7 @@ class AudioProcessor {
         // containerElement.style.borderRadius = '4px';
         // containerElement.style.padding = '5px';
         // containerElement.style.minWidth = '120px';
+        containerElement.style.maxHeight= '1.25em';
         
         // Create new bars (fewer bars for better visibility)
         for (let i = 0; i < 12; i++) {

@@ -37,9 +37,9 @@
   <div class="options-container">
     <div class="options-row">
       <div class="recording-controls">
-        <div id="visualizer-container-left"></div>
+        <div id="visualizer-container-left" style="display: none;"></div>
         <button id="toggle" class="record-btn">🎤 Start Listening</button>
-        <div id="visualizer-container-right"></div>
+        <div id="visualizer-container-right" style="display: none;"></div>
       </div>
     </div>
   </div>
@@ -172,6 +172,7 @@
   </div>
 </body>
 <script>
+console.log('[DEBUG] index.html script block loaded');
   // Initialize Speech Recognition
   const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
   const r = new Speech();
@@ -180,7 +181,11 @@
   let on = false;
   let lastTranscript = '';
 
-  // Initialize app state
+  // App state and visualizer instances
+  let audioProcessorLeft = null;
+  let audioProcessorRight = null;
+  let currentStream = null; // To hold the MediaStream
+
   const appState = {
     responseHistory: [],
     systemPrompt: 'You are a C-suite communication strategist specializing in reframing challenges as opportunities. Craft concise, authoritative responses that acknowledge objections while shifting perspective toward mutual benefit. Your goal is to maintain leadership presence while turning potential conflicts into collaborative solutions.',
@@ -198,19 +203,8 @@
     }
   };
 
-  // Initialize theme and settings
-  let audioProcessor = null;
-
   document.addEventListener('DOMContentLoaded', () => {
-    // Initialize audio processor if available
-    if (typeof AudioProcessor === 'function') {
-      try {
-        audioProcessor = new AudioProcessor();
-      } catch (e) {
-        console.error('Error initializing AudioProcessor:', e);
-      }
-    }
-
+    console.log('[DEBUG] DOMContentLoaded handler triggered');
     // Initialize UI state manager with error handling
     try {
       window.uiStateManager = new UIStateManager();
@@ -223,7 +217,11 @@
     loadSavedState();
 
     // Fetch and populate models from GitHub AI catalog
-    fetchAndPopulateModels();
+    console.log('[DEBUG] About to call fetchAndPopulateModels');
+    console.log('[DEBUG] typeof fetchAndPopulateModels:', typeof fetchAndPopulateModels);
+    fetchAndPopulateModels().catch(e => {
+      console.error('[DEBUG] fetchAndPopulateModels top-level error:', e);
+    });
 
     // No API key checks needed up front
 
@@ -270,8 +268,10 @@
         // Recording toggle
         const toggleBtn = document.getElementById('toggle');
         if (toggleBtn) {
+          // Remove existing listener before adding, to be safe, though primary duplication is fixed elsewhere
+          toggleBtn.removeEventListener('click', toggleRecording); 
           toggleBtn.addEventListener('click', toggleRecording);
-          console.log("Toggle recording button listener added");
+          console.log("Toggle recording button listener added/updated.");
         }
 
         // Save prompt button
@@ -290,9 +290,8 @@
       }
     };
 
-    // Set up event listeners immediately and also with a small delay to ensure DOM is ready
+    // Set up event listeners immediately
     setupEventListeners();
-    setTimeout(setupEventListeners, 500);
 
     // Preset management listeners
     try {
@@ -457,155 +456,384 @@
     }
   }
 
-  // Fetch and populate models from GitHub AI catalog
   async function fetchAndPopulateModels() {
-    let models = null;
-
-    // Try multiple approaches to fetch models
-    const fetchMethods = [
-      // Method 1: Direct fetch (works in production/when CORS is enabled)
-      async () => {
-        console.log('Trying direct fetch...');
-        const response = await fetch('https://models.github.ai/catalog/models');
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return await response.json();
-      },
-
-      // Method 2: CORS proxy
-      async () => {
-        console.log('Trying CORS proxy...');
-        const apiUrl = 'https://models.github.ai/catalog/models';
-        const corsProxy = 'https://api.allorigins.win/get?url=';
-        const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        const proxyData = await response.json();
-        return JSON.parse(proxyData.contents);
-      },
-
-      // Method 3: Alternative CORS proxy
-      async () => {
-        console.log('Trying alternative CORS proxy...');
-        const apiUrl = 'https://models.github.ai/catalog/models';
-        const corsProxy = 'https://corsproxy.io/?';
-        const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        return await response.json();
-      }
-    ];
-
-    // Try each method until one works
-    for (const fetchMethod of fetchMethods) {
-      try {
-        models = await fetchMethod();
-        if (models && Array.isArray(models)) {
-          console.log(`Successfully fetched ${models.length} models from GitHub AI catalog`);
-          break;
-        }
-      } catch (error) {
-        console.warn('Fetch method failed:', error.message);
-        continue;
-      }
+  let models = null;
+  const fetchMethods = [
+    async () => {
+      console.log('Trying direct fetch...');
+      const response = await fetch('https://models.github.ai/catalog/models');
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    },
+    async () => {
+      console.log('Trying CORS proxy...');
+      const apiUrl = 'https://models.github.ai/catalog/models';
+      const corsProxy = 'https://api.allorigins.win/get?url=';
+      const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const proxyData = await response.json();
+      return JSON.parse(proxyData.contents);
+    },
+    async () => {
+      console.log('Trying alternative CORS proxy...');
+      const apiUrl = 'https://models.github.ai/catalog/models';
+      const corsProxy = 'https://corsproxy.io/?';
+      const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
     }
+  ];
 
-    // If all methods failed, use fallback
-    if (!models) {
-      console.error('All fetch methods failed, using fallback models');
-      throw new Error('Unable to fetch models from any source');
+  for (const fetchMethod of fetchMethods) {
+    try {
+      models = await fetchMethod();
+      if (models && Array.isArray(models)) {
+        console.log(`Successfully fetched ${models.length} models from GitHub AI catalog`);
+        break;
+      }
+    } catch (error) {
+      console.warn('Fetch method failed:', error.message);
+      continue;
     }
+  }
+
+  if (!models) {
+    console.error('All fetch methods failed, using fallback models');
+    const modelSelect = document.getElementById('model-select');
+    if (modelSelect) {
+      console.log('[DEBUG] Entered fallback model rendering block (final)');
+      modelSelect.innerHTML = `
+      <option value="gpt-4o">OpenAI: GPT-4o</option>
+      <option value="gpt-4o-mini">OpenAI: GPT-4o Mini</option>
+      <option value="o1-preview">OpenAI: O1 Preview</option>
+      <option value="o1-mini">OpenAI: O1 Mini</option>
+      <option value="gpt-4">OpenAI: GPT-4</option>
+      <option value="gpt-3.5-turbo">OpenAI: GPT-3.5 Turbo</option>
+      <option value="claude-3-5-sonnet">Anthropic: Claude 3.5 Sonnet</option>
+      <option value="claude-3-haiku">Anthropic: Claude 3 Haiku</option>
+      <option value="llama-3.1-70b-instruct">Meta: Llama 3.1 70B</option>
+      <option value="llama-3.1-8b-instruct">Meta: Llama 3.1 8B</option>
+      <option value="mistral-large">Mistral: Large</option>
+      <option value="phi-3-medium-4k-instruct">Microsoft: Phi-3 Medium</option>
+    `;
+      // Log fallback models for debugging
+      console.log('[DEBUG] Fallback models rendered:', [
+        "gpt-4o",
+        "gpt-4o-mini",
+        "o1-preview",
+        "o1-mini",
+        "gpt-4",
+        "gpt-3.5-turbo",
+        "claude-3-5-sonnet",
+        "claude-3-haiku",
+        "llama-3.1-70b-instruct",
+        "llama-3.1-8b-instruct",
+        "mistral-large",
+        "phi-3-medium-4k-instruct"
+      ]);
+    }
+    return;
+  }
+
+  const modelSelect = document.getElementById('model-select');
+  if (!modelSelect) {
+    console.error('Model select element not found');
+    return;
+  }
+
+  modelSelect.innerHTML = '';
+
+  const textModels = models.filter(model =>
+    model.supported_output_modalities &&
+    model.supported_output_modalities.includes('text') &&
+    !model.supported_output_modalities.includes('embeddings')
+  );
+
+  textModels.sort((a, b) => {
+    if (a.publisher !== b.publisher) {
+      return a.publisher.localeCompare(b.publisher);
+    }
+    return a.name.localeCompare(b.name);
+  });
+
+  console.log('[DEBUG] Models being added to dropdown:', textModels.map(m => m.id));
+  textModels.forEach(model => {
+    const option = document.createElement('option');
+    option.value = model.id.includes('/') ? model.id.split('/')[1] : model.id;
+    option.dataset.fullModelId = model.id;
+    option.textContent = `${model.publisher}: ${model.name}`;
+    option.title = model.summary || model.name;
+    modelSelect.appendChild(option);
+  });
+
+  const savedModel = localStorage.getItem('selected_model');
+  const shortSavedModel = savedModel && savedModel.includes('/') ? savedModel.split('/')[1] : savedModel;
+
+  if (shortSavedModel && textModels.some(model => {
+    const shortId = model.id.includes('/') ? model.id.split('/')[1] : model.id;
+    return shortId === shortSavedModel;
+  })) {
+    modelSelect.value = shortSavedModel;
+    appState.selectedModel = shortSavedModel;
+  } else if (textModels.length > 0) {
+    const defaultModel = textModels.find(model => model.id === 'openai/gpt-4.1') || textModels[0];
+    const shortDefaultId = defaultModel.id.includes('/') ? defaultModel.id.split('/')[1] : defaultModel.id;
+    modelSelect.value = shortDefaultId;
+    appState.selectedModel = shortDefaultId;
+    localStorage.setItem('selected_model', shortDefaultId);
+  }
+
+  console.log(`Model dropdown populated with ${textModels.length} models. Selected: ${appState.selectedModel}`);
+}
+
+
+  // Visualizer Control Functions
+  async function startVisualizers(stream) {
+    const containerLeft = document.getElementById('visualizer-container-left');
+    const containerRight = document.getElementById('visualizer-container-right');
+
+    if (!containerLeft || !containerRight) {
+        console.error('Visualizer containers not found. Left:', containerLeft, 'Right:', containerRight);
+        return;
+    }
+    
+    stopVisualizers(); // Clear any previous state
 
     try {
-      const modelSelect = document.getElementById('model-select');
-      if (!modelSelect) {
-        console.error('Model select element not found');
-        return;
-      }
+        console.log("Attempting to start left visualizer...");
+        audioProcessorLeft = new AudioProcessor();
+        await audioProcessorLeft.initAudioContext();
+        audioProcessorLeft.setupVisualizer(stream, containerLeft);
+        console.log("Left visualizer setup attempted.");
 
-      // Clear existing options
-      modelSelect.innerHTML = '';
+        console.log("Attempting to start right visualizer...");
+        audioProcessorRight = new AudioProcessor();
+        await audioProcessorRight.initAudioContext();
+        audioProcessorRight.setupVisualizer(stream, containerRight);
+        console.log("Right visualizer setup attempted.");
 
-      // Filter for text generation models only (exclude embeddings)
-      const textModels = models.filter(model =>
-        model.supported_output_modalities &&
-        model.supported_output_modalities.includes('text') &&
-        !model.supported_output_modalities.includes('embeddings')
-      );
-
-      // Sort models by publisher and name for better organization
-      textModels.sort((a, b) => {
-        if (a.publisher !== b.publisher) {
-          return a.publisher.localeCompare(b.publisher);
-        }
-        return a.name.localeCompare(b.name);
-      });
-
-      // Populate dropdown with models
-      textModels.forEach(model => {
-        const option = document.createElement('option');
-        // Only keep characters after the '/' in model.id
-        option.value = model.id.includes('/') ? model.id.split('/')[1] : model.id;
-        // Store the full model ID as a data attribute for API calls
-        option.dataset.fullModelId = model.id;
-        // Format display name as "Publisher: Model Name"
-        option.textContent = `${model.publisher}: ${model.name}`;
-        option.title = model.summary || model.name; // Add tooltip with description
-        modelSelect.appendChild(option);
-      });
-
-      // Set the saved model or default to the first available model
-      const savedModel = localStorage.getItem('selected_model');
-      const shortSavedModel = savedModel && savedModel.includes('/') ? savedModel.split('/')[1] : savedModel;
-
-      if (shortSavedModel && textModels.some(model => {
-        const shortId = model.id.includes('/') ? model.id.split('/')[1] : model.id;
-        return shortId === shortSavedModel;
-      })) {
-        modelSelect.value = shortSavedModel;
-        appState.selectedModel = shortSavedModel;
-      } else if (textModels.length > 0) {
-        // Default to GPT-4.1 if available, otherwise first model
-        const defaultModel = textModels.find(model => model.id === 'openai/gpt-4.1') || textModels[0];
-        const shortDefaultId = defaultModel.id.includes('/') ? defaultModel.id.split('/')[1] : defaultModel.id;
-        modelSelect.value = shortDefaultId;
-        appState.selectedModel = shortDefaultId;
-        localStorage.setItem('selected_model', shortDefaultId);
-      }
-
-      console.log(`Model dropdown populated with ${textModels.length} models. Selected: ${appState.selectedModel}`);
-
+        console.log('Dual visualizers setup process completed.');
     } catch (error) {
-      console.error('Error processing models:', error);
-
-      // Fallback to hardcoded models if processing fails
-      const modelSelect = document.getElementById('model-select');
-      if (modelSelect) {
-        modelSelect.innerHTML = `
-        <option value="gpt-4o">OpenAI: GPT-4o</option>
-        <option value="gpt-4o-mini">OpenAI: GPT-4o Mini</option>
-        <option value="o1-preview">OpenAI: O1 Preview</option>
-        <option value="o1-mini">OpenAI: O1 Mini</option>
-        <option value="gpt-4">OpenAI: GPT-4</option>
-        <option value="gpt-3.5-turbo">OpenAI: GPT-3.5 Turbo</option>
-        <option value="claude-3-5-sonnet">Anthropic: Claude 3.5 Sonnet</option>
-        <option value="claude-3-haiku">Anthropic: Claude 3 Haiku</option>
-        <option value="llama-3.1-70b-instruct">Meta: Llama 3.1 70B</option>
-        <option value="llama-3.1-8b-instruct">Meta: Llama 3.1 8B</option>
-        <option value="mistral-large">Mistral: Large</option>
-        <option value="phi-3-medium-4k-instruct">Microsoft: Phi-3 Medium</option>
-      `;
-
-        // Set the saved model or default
-        const savedModel = localStorage.getItem('selected_model');
-        const shortSavedModel = savedModel && savedModel.includes('/') ? savedModel.split('/')[1] : savedModel;
-        if (shortSavedModel) {
-          modelSelect.value = shortSavedModel;
-          appState.selectedModel = shortSavedModel;
-        } else {
-          modelSelect.value = 'gpt-4.1';
-          appState.selectedModel = 'gpt-4.1';
+        console.error('Error starting visualizers:', error);
+        if (audioProcessorLeft) {
+            try { audioProcessorLeft.stopVisualizer(); } catch(e) { console.error("Error stopping left visualizer during cleanup:", e); }
         }
+        if (audioProcessorRight) {
+            try { audioProcessorRight.stopVisualizer(); } catch(e) { console.error("Error stopping right visualizer during cleanup:", e); }
+        }
+        audioProcessorLeft = null;
+        audioProcessorRight = null;
+    }
+  }
 
-        console.log('Using fallback models due to fetch/processing error');
+  function stopVisualizers() {
+    console.log("Stopping visualizers...");
+    if (audioProcessorLeft) {
+        try {
+            audioProcessorLeft.stopVisualizer();
+            console.log("Left visualizer stopped.");
+        } catch (e) {
+            console.error("Error stopping left visualizer:", e);
+        }
+        audioProcessorLeft = null;
+    }
+    if (audioProcessorRight) {
+         try {
+            audioProcessorRight.stopVisualizer();
+            console.log("Right visualizer stopped.");
+        } catch (e) {
+            console.error("Error stopping right visualizer:", e);
+        }
+        audioProcessorRight = null;
+    }
+    // Ensure containers are also cleared of any direct children if necessary, though AudioProcessor.stopVisualizer should handle its own bars.
+    // const containerLeft = document.getElementById('visualizer-container-left');
+    // const containerRight = document.getElementById('visualizer-container-right');
+    // if(containerLeft) containerLeft.innerHTML = '';
+    // if(containerRight) containerRight.innerHTML = '';
+    console.log('Dual visualizers stopped and cleaned up.');
+  }
+
+  // Recording Control Function
+  async function toggleRecording() {
+    console.log('[index.html] toggleRecording called');
+    const toggleBtn = document.getElementById('toggle');
+    if (!toggleBtn) {
+        console.error("Toggle button not found");
+        return;
+    }
+
+    if (!on) { // Start recording
+        try {
+            console.log("Attempting to get user media...");
+            currentStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            console.log("Microphone access granted.");
+
+            r.onstart = () => {
+                console.log("Speech recognition service has started.");
+            };
+            r.onend = () => {
+                console.log("Speech recognition service disconnected.");
+                // If 'on' is still true, it means it stopped unexpectedly (e.g. no speech, network error)
+                // Depending on desired behavior, you might want to restart it or handle UI.
+                // For now, if 'on' is true, we assume it should be listening, so if it stops, we might need to stop everything.
+                // However, continuous recognition usually tries to restart itself or needs manual restart on 'onend' if desired.
+                // For this toggle, if 'on' is false, it means we intentionally stopped it.
+            };
+            r.onerror = (event) => {
+                console.error('Speech recognition error:', event.error);
+                if (event.error === 'no-speech') {
+                    console.warn('No speech detected. Recognition stopped.');
+                    // Optionally handle UI feedback for no speech
+                } else if (event.error === 'audio-capture') {
+                    alert('Audio capture error. Please ensure your microphone is working and permissions are granted.');
+                    // Force stop everything
+                    if (on) toggleRecording(); // Simulate a stop click
+                } else if (event.error === 'not-allowed') {
+                    alert('Speech recognition permission denied. Please allow microphone access in your browser settings.');
+                    if (on) toggleRecording(); 
+                }
+                // Other errors might require different handling
+            };
+            
+            // Ensure transcription works: set up r.onresult handler
+            r.onresult = async (e) => {
+              console.log('[index.html] r.onresult fired');
+              const transcript = e.results[e.results.length - 1][0].transcript.trim();
+              console.log('[index.html] Transcript:', transcript);
+              const lastObjectionElem = document.getElementById('lastObjection');
+              if (lastObjectionElem) {
+                lastObjectionElem.textContent = transcript;
+              }
+              // If the transcript changed, generate a new response
+              if (transcript !== lastTranscript) {
+                lastTranscript = transcript;
+                await generateResponse(transcript);
+              }
+            };
+            
+            console.log('[index.html] Calling r.start()');
+            r.start();
+            // console.log("Speech recognition started."); // Logged by r.onstart
+
+            const containerLeft = document.getElementById('visualizer-container-left');
+            const containerRight = document.getElementById('visualizer-container-right');
+            if (containerLeft) containerLeft.style.display = 'flex'; 
+            if (containerRight) containerRight.style.display = 'flex';
+
+            await startVisualizers(currentStream); 
+
+            toggleBtn.textContent = '🚨 Stop Listening';
+            toggleBtn.classList.add('recording');
+            on = true;
+            console.log('[index.html] Recording started');
+            if (window.uiStateManager) window.uiStateManager.updateState(window.uiStateManager.states.LISTENING);
+
+        } catch (err) {
+            console.error('Error accessing microphone or starting systems:', err);
+            alert('Could not access microphone. Please check permissions. Error: ' + err.message);
+            if (window.uiStateManager) window.uiStateManager.updateState(window.uiStateManager.states.ERROR);
+            
+            stopVisualizers(); // Ensure visualizers are stopped
+            if (currentStream) { // Release mic if stream was obtained before error
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+            toggleBtn.textContent = '🎤 Start Listening';
+            toggleBtn.classList.remove('recording');
+            on = false;
+        }
+    } else { // Stop recording
+        r.stop();
+        // console.log("Speech recognition stopped."); // Logged by r.onend
+
+        stopVisualizers();
+        
+        const containerLeft = document.getElementById('visualizer-container-left');
+        const containerRight = document.getElementById('visualizer-container-right');
+        if (containerLeft) containerLeft.style.display = 'none';
+        if (containerRight) containerRight.style.display = 'none';
+
+        toggleBtn.textContent = '🎤 Start Listening';
+        toggleBtn.classList.remove('recording');
+        on = false;
+        console.log('[index.html] Recording stopped');
+        if (window.uiStateManager) window.uiStateManager.updateState(window.uiStateManager.states.READY);
+
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
+            console.log("Microphone stream tracks stopped.");
+        }
+    }
+  }
+
+  // Load app state from localStorage
+  function loadSavedState() {
+    // Load system prompt
+    const savedPrompt = localStorage.getItem('system_prompt');
+    if (savedPrompt) {
+      appState.systemPrompt = savedPrompt;
+
+      // Update dialog version if it exists
+      const dialogPrompt = document.getElementById('system-prompt-dialog');
+      if (dialogPrompt) {
+        dialogPrompt.value = savedPrompt;
       }
+    }
+
+    // Load selected model
+    const savedModel = localStorage.getItem('selected_model');
+    if (savedModel) {
+      appState.selectedModel = savedModel;
+    }
+
+    // Load GitHub token
+    const githubToken = localStorage.getItem('github_token') || '';
+
+    // Load response history
+    const savedHistory = localStorage.getItem('response_history');
+    if (savedHistory) {
+      try {
+        appState.responseHistory = JSON.parse(savedHistory);
+      } catch (e) {
+        console.error('Error parsing saved history:', e);
+        appState.responseHistory = [];
+      }
+    }
+
+    // Load uploaded files
+    const savedFiles = localStorage.getItem('uploaded_files');
+    if (savedFiles) {
+      try {
+        appState.uploadedFiles = JSON.parse(savedFiles);
+      } catch (e) {
+        console.error('Error parsing saved files:', e);
+        appState.uploadedFiles = [];
+      }
+    }
+
+    // Load custom presets
+    const savedPresets = localStorage.getItem('custom_presets');
+    if (savedPresets) {
+      try {
+        const customPresets = JSON.parse(savedPresets);
+        // Merge custom presets with default presets
+        appState.presets = { ...appState.presets, ...customPresets };
+        // Update the preset dropdown options
+        setTimeout(() => {
+          updatePresetOptions();
+          updatePresetOptionsDialog();
+        }, 0);
+      } catch (e) {
+        console.error('Error parsing saved presets:', e);
+      }
+    } else {
+      // Make sure we have all default presets in the dropdown
+      setTimeout(() => {
+        updatePresetOptions();
+        updatePresetOptionsDialog();
+      }, 0);
     }
   }
 
@@ -1121,172 +1349,6 @@
     return context;
   }
 
-  // Toggle recording function
-  function toggleRecording() {
-    const button = document.getElementById('toggle');
-
-    if (on) {
-      r.stop();
-      on = false;
-      button.textContent = '🎤 Start Listening';
-      button.classList.remove('active');
-      document.getElementById('lastObjection').textContent = 'Your speech will appear here...';
-
-      // Update UI state to ready with safe error handling
-      try {
-        if (window.uiStateManager && window.uiStateManager.states && window.uiStateManager.updateState) {
-          window.uiStateManager.updateState(window.uiStateManager.states.READY);
-        }
-      } catch (e) {
-        console.warn('Error updating UI state:', e);
-      }
-
-      // Stop visualizer when recording stops if available
-      let leftAudioProcessor = window.audioProcessorLeft || null;
-      let rightAudioProcessor = window.audioProcessorRight || null;
-
-      if (rightAudioProcessor && typeof rightAudioProcessor.stopVisualizer === 'function') {
-        try {
-          rightAudioProcessor.stopVisualizer();
-          // Hide the visualizer container
-          const visualizerContainerRight = document.getElementById('visualizer-container-right');
-          if (visualizerContainerRight) {
-            visualizerContainerRight.style.display = 'none';
-          }
-        } catch (e) {
-          console.error('Error stopping right visualizer:', e);
-        }
-      }
-      if (leftAudioProcessor && typeof leftAudioProcessor.stopVisualizer === 'function') {
-        try {
-          leftAudioProcessor.stopVisualizer();
-          // Hide the visualizer container
-          const visualizerContainerLeft = document.getElementById('visualizer-container-left');
-          if (visualizerContainerLeft) {
-            visualizerContainerLeft.style.display = 'none';
-          }
-          const visualizerContainerRight = document.getElementById('visualizer-container-right');
-          if (visualizerContainerRight) {
-            visualizerContainerRight.style.display = 'none';
-          }
-        } catch (e) {
-          console.error('Error stopping visualizer:', e);
-        }
-      }
-    } else {
-      // Start speech recognition
-      try {
-        r.start();
-        on = true;
-        button.textContent = '🛑 Stop Listening';
-        button.classList.add('active');
-
-        // Update UI state to listening with safe error handling
-        try {
-          if (window.uiStateManager && window.uiStateManager.states && window.uiStateManager.updateState) {
-            window.uiStateManager.updateState(window.uiStateManager.states.LISTENING);
-          }
-        } catch (e) {
-          console.warn('Error updating UIState:', e);
-        }
-
-        // Start audio context and visualizer if available
-        // let leftAudioProcessor = window.audioProcessorLeft || null; // These are now handled within startVisualizers
-        // let rightAudioProcessor = window.audioProcessorRight || null; // These are now handled within startVisualizers
-
-        async function startVisualizers(stream) {
-          const visualizerContainerLeft = document.getElementById('visualizer-container-left');
-          const visualizerContainerRight = document.getElementById('visualizer-container-right');
-
-          // Ensure containers exist before trying to use them
-          if (!visualizerContainerLeft || !visualizerContainerRight) {
-            console.error('Visualizer container elements (visualizer-container-left or visualizer-container-right) not found in the DOM.');
-            return;
-          }
-
-          // Make the containers visible
-          visualizerContainerLeft.style.display = 'flex';
-          visualizerContainerRight.style.display = 'flex';
-
-          const localLeftAudioProcessor = new AudioProcessor();
-          const localRightAudioProcessor = new AudioProcessor();
-
-          try {
-            // Initialize audio contexts for both processors
-            await localLeftAudioProcessor.initAudioContext();
-            await localRightAudioProcessor.initAudioContext();
-
-            // Setup each visualizer with the stream and its respective container
-            localLeftAudioProcessor.setupVisualizer(stream, visualizerContainerLeft);
-            // The same MediaStream can be used to create multiple MediaStreamAudioSourceNodes
-            localRightAudioProcessor.setupVisualizer(stream, visualizerContainerRight);
-
-            // Optionally, assign to window if they need to be accessed globally (e.g., for debugging or other parts of the app)
-            window.audioProcessorLeft = localLeftAudioProcessor;
-            window.audioProcessorRight = localRightAudioProcessor;
-
-            console.log('Left and Right visualizers started successfully.');
-
-          } catch (err) {
-            console.error('Failed to start one or both visualizers:', err);
-            // Attempt to hide containers on error to avoid empty spaces
-            if (visualizerContainerLeft) visualizerContainerLeft.style.display = 'none';
-            if (visualizerContainerRight) visualizerContainerRight.style.display = 'none';
-          }
-        }
-
-        // Revised logic for initializing visualizers:
-        // This replaces the old block that started around line 1176 which incorrectly used a single audioProcessor.
-        if (typeof AudioProcessor === 'function') {
-          navigator.mediaDevices.getUserMedia({ audio: true, video: false })
-            .then(mediaStream => { // Renamed 'stream' to 'mediaStream' for clarity
-              startVisualizers(mediaStream);
-            })
-            .catch(err => {
-              console.error('Failed to get user media for visualizers:', err);
-              // Hide visualizer containers if permission is denied or another error occurs
-              const visualizerContainerLeft = document.getElementById('visualizer-container-left');
-              const visualizerContainerRight = document.getElementById('visualizer-container-right');
-              if (visualizerContainerLeft) visualizerContainerLeft.style.display = 'none';
-              if (visualizerContainerRight) visualizerContainerRight.style.display = 'none';
-              // alert('Could not access microphone. Audio visualizers will not work. Please check permissions.');
-            });
-        } else {
-          console.error('AudioProcessor class not found (utils.js might not be loaded or class is undefined). Visualizers will not start.');
-          // Ensure containers are hidden if the core class is missing
-          const visualizerContainerLeft = document.getElementById('visualizer-container-left');
-          const visualizerContainerRight = document.getElementById('visualizer-container-right');
-          if (visualizerContainerLeft) visualizerContainerLeft.style.display = 'none';
-          if (visualizerContainerRight) visualizerContainerRight.style.display = 'none';
-        }
-      } catch (e) {
-        console.error('Error starting speech recognition:', e);
-        alert('Failed to start speech recognition. Please try again.');
-
-        // Update UI state to error with safe error handling
-        try {
-          if (window.uiStateManager && window.uiStateManager.states && window.uiStateManager.updateState) {
-            window.uiStateManager.updateState(window.uiStateManager.states.ERROR);
-          }
-        } catch (e) {
-          console.warn('Error updating UI state:', e);
-        }
-      }
-    }
-  }
-
-  // Event handler for speech recognition results
-  r.onresult = async (e) => {
-    const transcript = e.results[e.results.length - 1][0].transcript.trim();
-    document.getElementById('lastObjection').textContent = transcript;
-
-    // If the transcript changed, generate a new response
-    if (transcript !== lastTranscript) {
-      lastTranscript = transcript;
-      await generateResponse(transcript);
-    }
-  };
-
   // Helper function to format model display
   function formatModelDisplay(modelDisplay) {
     if (modelDisplay.includes('/')) {
@@ -1424,6 +1486,8 @@
 
       // Fallback: if no data attribute, assume it needs 'openai/' prefix for common models
       const model = fullModelId || (appState.selectedModel.includes('/') ? appState.selectedModel : `openai/${appState.selectedModel}`);
+      // Log the model value being sent to the backend for debugging
+      console.log('[DEBUG] Model sent to backend:', model);
 
       // Get system prompt
       const systemPrompt = appState.systemPrompt;
@@ -1469,6 +1533,9 @@
         replyElement.textContent = '⏳ Rate limit exceeded. Please wait a moment and try again.';
       } else if (error.message.includes('model')) {
         replyElement.textContent = `⚠️ Model not available. The ${appState.selectedModel} model might not be accessible.`;
+        if (error.message && error.message.includes('Unknown model')) {
+          replyElement.textContent += `\n⚠️ The selected model is not supported by the backend. Please choose a different model.`;
+        }
       } else {
         replyElement.textContent = '❌ Error: ' + error.message;
       }
@@ -1500,7 +1567,7 @@
           'Authorization': `Bearer ${githubToken}`
         },
         body: JSON.stringify({
-          model: model,
+          model: model.includes('/') ? model.split('/')[1] : model,
           messages: [
             {
               role: 'system',
@@ -1555,15 +1622,6 @@
       throw error;
     }
   }
-
-  // Handle speech recognition errors and end events
-  r.onerror = e => console.log('Speech error:', e);
-  r.onend = () => {
-    if (on) {
-      // Auto-restart if recording should be on
-      r.start();
-    }
-  };
 </script>
 
 <!-- Footer -->
