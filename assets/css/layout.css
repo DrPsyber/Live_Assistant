@@ -10,29 +10,48 @@
 }
 
 .flex-row {
-  align-items: center;
   display: flex;
-  gap: 0.5rem;
-  justify-content: right;
+  gap: .5rem;
   margin-bottom: 1rem;
   width: 100%;
 }
+.flex-spacer {
+  flex: 1;
+}
 
-.header-controls {
-  align-items: center;
+.flex-row .just-center {
+  display: flex;
+  justify-items: center;
+}
+
+.flex-row .just-left {
+  display: flex;
+  justify-items: left;
+}
+
+.flex-row.just-right {
+  display: flex;
+  justify-items: right;
+}
+
+.flex-row.just-space {
   display: flex;
   justify-content: space-between;
 }
 
+.header-controls {
+  display: flex;
+  justify-items: space-between;
+}
+
 .controls {
   display: flex;
-  gap: .25rem;
 }
 
 /* App Description */
 .app-description {
   color: var(--pri-text-color);
-  font-size: .8rem;
+  font-size: .7rem;
 }
 
 /* Options */
@@ -76,7 +95,7 @@
   align-items: center;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 0rem;
 }
 
 .response-header .box-label {
@@ -96,49 +115,54 @@
 
 /* History Container */
 .history-container {
-  margin-top: 1rem;
+  margin-top: 0rem;
 }
 
 .history-header {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 0rem;
 }
 
 .history-list {
-  margin-top: 1rem;
+  display: flex;
+  margin-top: 0rem;
 }
 
 .history-item {
-  background-color: var(--pri-bg-color);
   border-radius: var(--inner-radius);
-  margin-bottom: 1rem;
-  padding: 1rem;
+  background-color: var(--list-item-hover);
+  display: flex;
+  flex-direction: column;
+  padding: .5rem;
+  row-gap: 1rem;
+}
+
+.history-item .flex-row {
+  margin: 0;
 }
 
 .history-item-objection {
   font-size: .8rem;
-  margin-bottom: .8rem;
   opacity: .8;
 }
 
 .history-item-response {
-  font-weight: bold;
+  font-size: .8rem;
 }
 
 .history-item-meta {
-  color: var(--pri-text-color);
+  color: var(--sec-text-color);
   display: flex;
   font-size: .8rem;
   justify-content: space-between;
-  margin-top: 1rem;
-  opacity: .8;
+  opacity: .3;
 }
 
 /* Footer */
 .footer {
-  margin-top: 2.5rem;
+  margin-top: 0rem;
   padding: 1rem 0;
   text-align: center;
 }

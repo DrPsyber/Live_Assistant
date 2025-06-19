@@ -28,7 +28,21 @@
   padding: 1rem;
   transition: all 0.5s ease;
   width: fit-content;
-  z-index: 1001;
+}
+
+#settings-dialog {
+  z-index: 1000;
+}
+
+#settings-dialog-title {
+  color: var(--pri-text-color);
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 0rem;
+}
+
+#new-preset-dialog {
+    z-index: 1250;
 }
 
 .dialog input {
@@ -97,7 +111,6 @@
   display: flex;
   gap: .5rem;
   justify-content: space-between;
-  margin-bottom: 1rem;
 }
 
 .model-selector label {
@@ -116,7 +129,6 @@
   align-items: center;
   display: flex;
   gap: .5rem;
-  margin-bottom: 1rem;
   width: 100%;
 }
 
@@ -126,6 +138,7 @@
   display: flex;
   gap: .5rem;
   justify-content: space-between;
+  margin-bottom: 0rem;
 }
 
 #api-key-section .input-field {
@@ -150,17 +163,23 @@ div #label-container .flex-row {
   margin-bottom: 0;
 }
 
+.header-controls .flex-row .just-space {
+  align-items: center;
+  display: flex;
+  margin-bottom: 0;
+}
+
 #github-token-textarea {
   background-color: var(--sec-bg-color);
   border-radius: 5px;
   box-shadow: inset var(--shadow-small);
   color: var(--sec-text-color);
-  flex: content;
+  width: 300px;
   font-size: .8rem;
-  height: .8rem;
+  height: 1rem;
   margin-bottom: 0;
   overflow-y: hidden;
-  padding: .2rem;
+  padding: .25rem;
   resize: none;
   transition: all 0.5s ease;
 }
@@ -275,13 +294,6 @@ div #label-container .flex-row {
 
 /* Responsive Design */
 @media (max-width: 480px) {
-  h1,
-  h2,
-  h3 {
-    color: var(--pri-text-color);
-    font-size: 1.4rem;
-    font-weight: 600;
-  }
 
   button {
     width: 100%;

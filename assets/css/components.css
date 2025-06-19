@@ -140,7 +140,6 @@ textarea {
   display: flex;
   flex: 1;
   font-size: .8rem;
-  margin-bottom: 1rem;
   resize: vertical;
   transition: all 0.5s ease;
 }
@@ -149,37 +148,38 @@ textarea {
 .box {
   background-color: var(--sec-bg-color);
   border-radius: var(--outer-radius);
-  box-shadow: inset var(--shadow-medium);
-  color: var(--pri-text-color);
-  text-shadow: var(--shadow-medium);
-  transition: all 0.5s ease;
-}
-
-.box:hover {
   box-shadow: inset var(--shadow-small);
-  text-shadow: var(--shadow-small);
+  color: var(--pri-text-color);
+  transition: all 0.5s ease;
 }
 
 .box-header-row {
   align-items: center;
-  background-color: var(--sec-bg-color);
+  background-color: var(--list-item-hover);
   border-top-left-radius: var(--outer-radius);
   border-top-right-radius: var(--outer-radius);
-  box-shadow: inset var(--shadow-medium);
+  box-shadow: inset var(--shadow-small);
   display: flex;
   justify-content: space-between;
-  padding: 1rem;
+  padding: .5rem 1rem;
   transition: all 0.5s ease;
-}
-
-.box-header-row:hover {
-  box-shadow: inset var(--shadow-small);
 }
 
 .box-label {
   color: var(--sec-text-color);
   display: flex;
   font-size: 1rem;
+  margin: 0rem;
+}
+
+.help-text {
+  font-size: .6rem;
+  font-weight: 200;
+  margin: 0rem;
+}
+
+#title-help-text {
+  margin-bottom: 1rem;
 }
 
 /* System Prompt Container */
