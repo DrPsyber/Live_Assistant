@@ -20,6 +20,3 @@
   --shadow-large: 0 4px 8px var(--shadow-color);
 }
 
-.dark-mode .logo{
-  filter: invert(1);
-}

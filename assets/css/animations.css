@@ -5,15 +5,7 @@
   100% { opacity: 1; }
 }
 
-.pulsing {
-  animation: pulse 1.5s infinite;
-}
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
-}
-
-#reply:not(:empty) {
-  animation: all 0.5s ease;
 }

@@ -47,13 +47,6 @@ div h2 {
 }
 
 /* Utility Classes */
-.hidden {
-  display: none;
-}
-
 .info-text {
   font-size: .8rem;
-}
-.hidden {
-  display: none !important;
 }
